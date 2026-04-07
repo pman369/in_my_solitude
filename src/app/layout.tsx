@@ -5,7 +5,9 @@ import "@fontsource/inter/600.css";
 import "@fontsource/playfair-display/400.css";
 import "@fontsource/playfair-display/700.css";
 import "./globals.css";
+import "@/styles/librarian-chat.css";
 import { PreferencesProvider } from "@/components/providers/PreferencesProvider";
+import { LibrarianChat } from "@/components/chat/LibrarianChat";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
@@ -43,7 +45,8 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          {/* LibrarianChat — wired in Phase 6 */}
+          {/* The Librarian — available on every page, context-aware on book pages */}
+          <LibrarianChat />
         </PreferencesProvider>
       </body>
     </html>

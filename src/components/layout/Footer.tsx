@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Moon } from "lucide-react";
 
@@ -5,18 +7,18 @@ const FOOTER_LINKS = [
   {
     heading: "The Library",
     links: [
-      { label: "Open Stacks",     href: "/library" },
-      { label: "The Vault",       href: "/vault"   },
-      { label: "Request Desk",    href: "/desk"    },
-      { label: "About",           href: "/about"   },
+      { label: "Open Stacks",  href: "/library" },
+      { label: "The Vault",    href: "/vault"   },
+      { label: "Request Desk", href: "/desk"    },
+      { label: "About",        href: "/about"   },
     ],
   },
   {
     heading: "Account",
     links: [
-      { label: "My Shelf",    href: "/profile"        },
-      { label: "Sign In",     href: "/auth/login"     },
-      { label: "Join",        href: "/auth/register"  },
+      { label: "My Shelf", href: "/profile"       },
+      { label: "Sign In",  href: "/auth/login"    },
+      { label: "Join",     href: "/auth/register" },
     ],
   },
 ];
@@ -30,7 +32,7 @@ export function Footer() {
     >
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-3 gap-12 mb-12">
-          {/* ── Brand column ───────────────────────────── */}
+          {/* ── Brand column ─────────────────────────── */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2" aria-label="In My Solitude — Home">
               <Moon className="w-5 h-5" style={{ color: "#C9A84C" }} />
@@ -60,14 +62,7 @@ export function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm transition-colors duration-200 w-fit"
-                  style={{ color: "#9A9088" }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.color = "#F0EDE6";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.color = "#9A9088";
-                  }}
+                  className="footer-nav-link text-sm w-fit"
                 >
                   {link.label}
                 </Link>

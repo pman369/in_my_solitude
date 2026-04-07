@@ -162,3 +162,11 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: #C9A84C44; }
+
+/* ── Footer nav links ────────────────────────────── */
+.footer-nav-link {
+  color: #9A9088;
+  transition: color 0.2s ease;
+  display: block;
+}
+.footer-nav-link:hover { color: #F0EDE6; }

@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { BookOpen, Key, Library, User, Moon, Menu, X } from "lucide-react";
+import { BookOpen, Key, Library, User, Moon, Menu, X, LogOut } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
   { href: "/library", label: "Library",      icon: BookOpen },
@@ -98,27 +100,7 @@ export function Navbar() {
 
           {/* ── Right Side Actions ─────────────────────── */}
           <div className="flex items-center gap-2">
-            {/* Profile / Login */}
-            <Link
-              href="/profile"
-              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm rounded border transition-all duration-200"
-              style={{
-                border: "1px solid #2A2A2A",
-                color: "#9A9088",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,76,0.4)";
-                (e.currentTarget as HTMLElement).style.color = "#F0EDE6";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "#2A2A2A";
-                (e.currentTarget as HTMLElement).style.color = "#9A9088";
-              }}
-              aria-label="My Profile"
-            >
-              <User className="w-4 h-4" />
-              <span>My Shelf</span>
-            </Link>
+            <NavbarAuthArea isActive={isActive} />
 
             {/* Mobile menu toggle */}
             <button
@@ -163,18 +145,164 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 pt-4" style={{ borderTop: "1px solid #2A2A2A" }}>
-              <Link
-                href="/profile"
-                className="flex items-center gap-4 px-4 py-4 rounded text-base"
-                style={{ color: "#9A9088" }}
-              >
-                <User className="w-5 h-5" />
-                My Shelf
-              </Link>
+              <MobileAuthArea />
             </div>
           </nav>
         </div>
       )}
     </>
+  );
+}
+
+/* ─────────────────────────── Auth sub-components ─────────────────────────── */
+
+function NavbarAuthArea({ isActive }: { isActive: (href: string) => boolean }) {
+  const { user, profile, loading, isAuthenticated } = useUser();
+  const supabase = createClient();
+
+  const displayName = profile?.display_name ?? user?.email ?? null;
+  const initial = displayName ? displayName[0].toUpperCase() : "?";
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
+
+  // Skeleton while loading — prevents layout shift
+  if (loading) {
+    return (
+      <div
+        className="hidden md:block rounded border"
+        style={{ border: "1px solid #2A2A2A", width: 110, height: 36, opacity: 0.25 }}
+        aria-hidden="true"
+      />
+    );
+  }
+
+  if (isAuthenticated) {
+    return (
+      <div className="hidden md:flex items-center gap-2">
+        <Link
+          href="/profile"
+          className="flex items-center gap-2 px-3 py-2 rounded border text-sm transition-all duration-200"
+          style={{
+            border: isActive("/profile") ? "1px solid rgba(201,168,76,0.4)" : "1px solid #2A2A2A",
+            color: isActive("/profile") ? "#C9A84C" : "#9A9088",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,76,0.4)";
+            (e.currentTarget as HTMLElement).style.color = "#F0EDE6";
+          }}
+          onMouseLeave={(e) => {
+            if (!isActive("/profile")) {
+              (e.currentTarget as HTMLElement).style.borderColor = "#2A2A2A";
+              (e.currentTarget as HTMLElement).style.color = "#9A9088";
+            }
+          }}
+          aria-label="My Profile"
+        >
+          <span
+            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0"
+            style={{
+              background: "rgba(201,168,76,0.15)",
+              color: "#C9A84C",
+              border: "1px solid rgba(201,168,76,0.3)",
+            }}
+            aria-hidden="true"
+          >
+            {initial}
+          </span>
+          <span className="max-w-[100px] truncate">
+            {profile?.display_name ?? "My Shelf"}
+          </span>
+        </Link>
+
+        <button
+          onClick={signOut}
+          className="p-2 rounded border transition-all duration-200"
+          style={{ border: "1px solid #2A2A2A", color: "#9A9088" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "rgba(153,27,27,0.5)";
+            (e.currentTarget as HTMLElement).style.color = "#F87171";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "#2A2A2A";
+            (e.currentTarget as HTMLElement).style.color = "#9A9088";
+          }}
+          aria-label="Sign out"
+          title="Sign out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href="/auth/login"
+      className="hidden md:flex items-center gap-2 px-4 py-2 text-sm rounded border transition-all duration-200"
+      style={{ border: "1px solid #2A2A2A", color: "#9A9088" }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,76,0.4)";
+        (e.currentTarget as HTMLElement).style.color = "#F0EDE6";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.borderColor = "#2A2A2A";
+        (e.currentTarget as HTMLElement).style.color = "#9A9088";
+      }}
+      aria-label="Sign in to the library"
+    >
+      <User className="w-4 h-4" />
+      <span>Sign In</span>
+    </Link>
+  );
+}
+
+function MobileAuthArea() {
+  const { profile, loading, isAuthenticated } = useUser();
+  const supabase = createClient();
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
+
+  if (loading) return null;
+
+  if (isAuthenticated) {
+    return (
+      <div className="flex flex-col gap-1">
+        <Link
+          href="/profile"
+          className="flex items-center gap-4 px-4 py-4 rounded text-base"
+          style={{ color: "#9A9088" }}
+        >
+          <User className="w-5 h-5" />
+          {profile?.display_name ?? "My Shelf"}
+        </Link>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-4 px-4 py-4 rounded text-base w-full text-left transition-colors duration-200"
+          style={{ color: "#9A9088" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#F87171")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#9A9088")}
+        >
+          <LogOut className="w-5 h-5" />
+          Sign Out
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href="/auth/login"
+      className="flex items-center gap-4 px-4 py-4 rounded text-base"
+      style={{ color: "#9A9088" }}
+    >
+      <User className="w-5 h-5" />
+      Sign In
+    </Link>
   );
 }
