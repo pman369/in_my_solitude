@@ -18,6 +18,7 @@ export function Navbar() {
   const pathname  = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen]  = useState(false);
+  const { isAdmin } = useUser();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -30,6 +31,11 @@ export function Navbar() {
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  const navLinks = [...NAV_LINKS];
+  if (isAdmin) {
+    navLinks.push({ href: "/curator/books/upload", label: "Curator", icon: Library });
+  }
 
   return (
     <>
@@ -70,7 +76,7 @@ export function Navbar() {
             aria-label="Main navigation"
             className="hidden md:flex items-center gap-1"
           >
-            {NAV_LINKS.map(({ href, label }) => (
+            {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
@@ -129,7 +135,7 @@ export function Navbar() {
             aria-label="Mobile navigation"
             className="flex flex-col gap-1 px-6 py-8"
           >
-            {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+            {navLinks.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
