@@ -138,7 +138,20 @@ and guide them through the request or donation process if needed.
 
     if (!perplexityRes.ok) {
       const errText = await perplexityRes.text();
-      console.error("Perplexity API error:", errText);
+      console.error("Perplexity API error:", {
+        status: perplexityRes.status,
+        statusText: perplexityRes.statusText,
+        error: errText
+      });
+      
+      // If unauthorized, it's likely a key issue
+      if (perplexityRes.status === 401) {
+        return NextResponse.json(
+          { error: "The Librarian's credentials are invalid. Please check the API configuration." },
+          { status: 502 }
+        );
+      }
+
       return NextResponse.json(
         { error: "The Librarian is momentarily unavailable. Please try again shortly." },
         { status: 502 }
