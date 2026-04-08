@@ -6,7 +6,11 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const { contextPage, contextBookId } = await request.json();
 
-  const { data: session, error } = await supabase
+  // chat_sessions is not in the generated Supabase types, so we use `any`
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const { data: session, error } = await db
     .from("chat_sessions")
     .insert({
       user_id:         user?.id ?? null,

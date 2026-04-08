@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 
 type Mode = "password" | "magic";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const next   = params.get("next") ?? "/library";
@@ -254,4 +254,16 @@ export default function LoginPage() {
       </motion.div>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0D0D0D" }}>
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#C9A84C" }} />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  )
 }

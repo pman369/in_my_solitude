@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Key, Lock, Eye, BookOpen } from "lucide-react";
+import { Key, Lock, Eye } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import type { VaultBook } from "./page";
 

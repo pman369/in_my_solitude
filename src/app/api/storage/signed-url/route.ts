@@ -59,14 +59,18 @@ export async function GET(request: NextRequest) {
     }
     // Look up a book whose file_url matches, then check access
     const filePath = [bucket, path].join("/");
-    const { data: book } = await supabase
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any;
+
+    const { data: book } = await db
       .from("books")
       .select("id")
       .eq("file_url", filePath)
       .single();
 
     if (book) {
-      const { data: access } = await supabase
+      const { data: access } = await db
         .from("vault_access_requests")
         .select("id")
         .eq("user_id", user.id)

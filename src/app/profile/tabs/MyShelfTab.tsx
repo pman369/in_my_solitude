@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { BookOpen, Loader2, Check, CheckCheck, Clock, X, StickyNote, Plus, Trash2 } from "lucide-react";
+import { BookOpen, Loader2, CheckCheck, Clock, X, StickyNote, Plus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useReadingList } from "@/hooks/useReadingList";
 import type { Database } from "@/types/database";
@@ -32,16 +31,17 @@ export default function MyShelfTab({ userId }: Props) {
   const [filter, setFilter] = useState<"all" | "want_to_read" | "reading" | "finished">("all");
   const [openNotes, setOpenNotes] = useState<string | null>(null); // book_id
 
-  // Fetch the joined book data for all entries
   useEffect(() => {
     if (!entries.length) { setEntriesWithBooks([]); return; }
     setLoadingBooks(true);
     const bookIds = entries.map(e => e.book_id);
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .from("books")
       .select("id, title, author, cover_url")
       .in("id", bookIds)
-      .then(({ data: books }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then(({ data: books }: { data: any[] | null }) => {
         const bookMap = Object.fromEntries((books ?? []).map(b => [b.id, b]));
         setEntriesWithBooks(
           entries.map(e => ({ ...e, books: bookMap[e.book_id] ?? null } as EntryWithBook))
@@ -129,10 +129,7 @@ function ShelfEntry({
   onToggleNotes: () => void;
   notesOpen: boolean;
 }) {
-  const supabase = useRef(createClient()).current;
   const book = entry.books;
-  const meta = STATUS_LABELS[entry.status] ?? STATUS_LABELS.want_to_read;
-  const StatusIcon = meta.icon;
 
   return (
     <div
@@ -234,26 +231,27 @@ function NotesDrawer({ userId, bookId, bookTitle }: { userId: string; bookId: st
   const [saving,  setSaving]  = useState(false);
 
   useEffect(() => {
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .from("book_notes")
       .select("*")
       .eq("user_id", userId)
       .eq("book_id", bookId)
       .order("created_at", { ascending: false })
-      .then(({ data }) => { setNotes((data as BookNote[]) ?? []); setLoading(false); });
+      .then(({ data }: { data: BookNote[] | null }) => { setNotes(data ?? []); setLoading(false); });
   }, [supabase, userId, bookId]);
 
   async function addNote() {
     if (!text.trim()) return;
     setSaving(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase.from("book_notes") as any).insert({
+    const { data } = await (supabase as any).from("book_notes").insert({
       user_id: userId,
       book_id: bookId,
       note: text.trim(),
       page_ref: pageRef ? parseInt(pageRef, 10) : null,
       is_private: true,
-    }).select("*").single();
+    }).select("*").single() as { data: BookNote | null };
     if (data) setNotes(prev => [data as BookNote, ...prev]);
     setText("");
     setPageRef("");
@@ -261,7 +259,8 @@ function NotesDrawer({ userId, bookId, bookTitle }: { userId: string; bookId: st
   }
 
   async function deleteNote(id: string) {
-    await supabase.from("book_notes").delete().eq("id", id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from("book_notes").delete().eq("id", id);
     setNotes(prev => prev.filter(n => n.id !== id));
   }
 

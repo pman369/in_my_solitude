@@ -27,18 +27,20 @@ export default function MyVaultTab({ userId }: Props) {
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .from("vault_access_requests")
       .select("*")
       .eq("user_id", userId)
       .order("requested_at", { ascending: false })
-      .then(async ({ data: rows }) => {
+      .then(async ({ data: rows }: { data: VaultRequest[] | null }) => {
         if (!rows?.length) { setLoading(false); return; }
         const bookIds = rows.map(r => r.book_id);
-        const { data: books } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: books } = await (supabase as any)
           .from("books")
           .select("id, title, author, cover_url")
-          .in("id", bookIds);
+          .in("id", bookIds) as { data: Pick<Book, "id" | "title" | "author" | "cover_url">[] | null };
         const bookMap = Object.fromEntries((books ?? []).map(b => [b.id, b]));
         setRequests(rows.map(r => ({ ...r, books: bookMap[r.book_id] ?? null } as RequestWithBook)));
         setLoading(false);

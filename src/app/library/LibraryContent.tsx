@@ -41,13 +41,12 @@ export default function LibraryContent() {
   const supabase   = useRef(createClient()).current;
   const debounceId = useRef<ReturnType<typeof setTimeout>>();
 
-  // Fetch categories once
   useEffect(() => {
     supabase
       .from("categories")
       .select("*")
       .order("sort_order")
-      .then(({ data }) => { if (data) setCategories(data); });
+      .then(({ data }) => { if (data) setCategories(data as Category[]); });
   }, [supabase]);
 
   const fetchBooks = useCallback(async (
@@ -79,7 +78,7 @@ export default function LibraryContent() {
         .select("id")
         .eq("slug", cat)
         .single();
-      if (catData) qb = qb.eq("category_id", catData.id);
+      if (catData) qb = qb.eq("category_id", (catData as { id: string }).id);
     }
 
     switch (s) {
@@ -270,7 +269,7 @@ export default function LibraryContent() {
             <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#C9A84C" }} />
           </div>
         ) : books.length === 0 ? (
-          <EmptyState query={query} category={category} onClear={() => { setQuery(""); setCategory(""); }} />
+          <EmptyState query={query} onClear={() => { setQuery(""); setCategory(""); }} />
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
@@ -408,11 +407,9 @@ function CoverPlaceholder({ title }: { title: string }) {
 
 function EmptyState({
   query,
-  category,
   onClear,
 }: {
   query: string;
-  category: string;
   onClear: () => void;
 }) {
   return (

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Mail, Lock, User, ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -25,7 +24,6 @@ const fadeSlide = {
 };
 
 export default function RegisterPage() {
-  const router   = useRouter();
   const supabase = createClient();
 
   const [step, setStep]              = useState(1);

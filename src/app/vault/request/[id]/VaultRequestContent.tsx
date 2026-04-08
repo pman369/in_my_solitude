@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Key, ArrowLeft, Loader2, Check, Lock } from "lucide-react";
@@ -21,7 +20,6 @@ interface Props {
 }
 
 export default function VaultRequestContent({ book }: Props) {
-  const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useUser();
   const supabase = createClient();
 
@@ -44,12 +42,13 @@ export default function VaultRequestContent({ book }: Props) {
 
     try {
       // Check for existing request
-      const { data: existing } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: existing } = await (supabase as any)
         .from("vault_access_requests")
         .select("id, status")
         .eq("user_id", user.id)
         .eq("book_id", book.id)
-        .single();
+        .single() as { data: { id: string; status: string } | null };
 
       if (existing) {
         if (existing.status === "approved") {

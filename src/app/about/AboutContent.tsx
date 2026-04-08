@@ -99,7 +99,7 @@ export default function AboutContent() {
               prestige. For freedom.
             </p>
             <p>
-              It was assembled book by book during one person's profound journey through a dark night
+              It was assembled book by book during one person&apos;s profound journey through a dark night
               of the soul. Every title in this archive played a role in that path toward consciousness,
               clarity, and liberation from mass mental conditioning. It is offered now because knowledge
               kept in the dark finds its light in solitude — and because solitude should not be

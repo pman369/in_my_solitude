@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, RotateCcw, BookOpen } from "lucide-react";
 import { usePathname } from "next/navigation";

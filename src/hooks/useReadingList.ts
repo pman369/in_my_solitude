@@ -50,12 +50,13 @@ export function useReadingList(bookId?: string): UseReadingListReturn {
   const fetchList = useCallback(async () => {
     if (!user) { setEntries([]); setFetching(false); return; }
     setFetching(true);
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from("reading_list")
       .select("*")
       .eq("user_id", user.id)
-      .order("added_at", { ascending: false });
-    setEntries((data as ReadingListEntry[]) ?? []);
+      .order("added_at", { ascending: false }) as { data: ReadingListEntry[] | null };
+    setEntries(data ?? []);
     setFetching(false);
   }, [user, supabase]);
 
@@ -91,7 +92,8 @@ export function useReadingList(bookId?: string): UseReadingListReturn {
     setLoading(true);
     try {
       if (isSaved) {
-        await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any)
           .from("reading_list")
           .delete()
           .eq("user_id", user.id)

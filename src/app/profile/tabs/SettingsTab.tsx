@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User, Palette, Type, Eye, Bell, Trash2,
+  User, Type, Eye, Bell, Trash2,
   Loader2, Check, ChevronRight, AlertTriangle, Upload
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -146,7 +146,8 @@ function useSave(userId: string) {
     setLoading(true);
     setError("");
     setSaved(false);
-    const { error: err } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: err } = await (supabase as any)
       .from("user_profiles")
       .update(updates)
       .eq("id", userId);
@@ -191,11 +192,13 @@ function ProfileSection({ userId, profile, userEmail }: { userId: string; profil
     setAvatarUploading(true);
     const ext      = file.name.split(".").pop();
     const fileName = `${userId}-${Date.now()}.${ext}`;
-    const { data, error: uploadErr } = await supabase.storage
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error: uploadErr } = await (supabase.storage as any)
       .from("avatars")
       .upload(fileName, file, { upsert: true, contentType: file.type });
     if (!uploadErr && data) {
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(data.path);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: urlData } = (supabase.storage.from("avatars") as any).getPublicUrl(data.path);
       setAvatarUrl(urlData.publicUrl);
       await save({ avatar_url: urlData.publicUrl });
     }
@@ -425,12 +428,14 @@ function NotificationsSection({ userId }: { userId: string }) {
   const [fetching, setFetching] = useState(true);
 
   useState(() => {
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .from("notification_preferences")
       .select("*")
       .eq("user_id", userId)
       .single()
-      .then(({ data }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then(({ data }: { data: any }) => {
         if (data) setPrefs({
           vault_request_updates:   data.vault_request_updates,
           book_request_fulfilled:  data.book_request_fulfilled,
