@@ -1,0 +1,51 @@
+﻿
+> in-my-solitude-temp@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/20) ...
+   Generating static pages (5/20) 
+   Generating static pages (10/20) 
+   Generating static pages (15/20) 
+ Γ£ô Generating static pages (20/20)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /                                    3.45 kB         140 kB
+Γö£ Γùï /_not-found                          873 B          88.2 kB
+Γö£ Γùï /about                               3.9 kB          140 kB
+Γö£ ╞Æ /api/account/delete                  0 B                0 B
+Γö£ ╞Æ /api/chat                            0 B                0 B
+Γö£ ╞Æ /api/chat/session                    0 B                0 B
+Γö£ ╞Æ /api/storage/signed-url              0 B                0 B
+Γö£ ╞Æ /auth/callback                       0 B                0 B
+Γö£ Γùï /auth/login                          3.04 kB         201 kB
+Γö£ Γùï /auth/register                       5.65 kB         203 kB
+Γö£ Γùï /auth/reset-password                 2.32 kB         200 kB
+Γö£ Γùï /auth/update-password                2.44 kB         200 kB
+Γö£ ╞Æ /book/[id]                           3.76 kB         208 kB
+Γö£ Γùï /curator/books/upload                10.6 kB         208 kB
+Γö£ Γùï /desk                                4.62 kB         205 kB
+Γö£ Γùï /icon.png                            0 B                0 B
+Γö£ Γùï /library                             6.12 kB         204 kB
+Γö£ ╞Æ /profile                             11.7 kB         212 kB
+Γö£ ╞Æ /vault                               2.99 kB         201 kB
+Γöö ╞Æ /vault/request/[id]                  3.96 kB         202 kB
++ First Load JS shared by all            87.3 kB
+  Γö£ chunks/117-648129468f8bcd07.js       31.7 kB
+  Γö£ chunks/fd9d1056-ea949d58b73d551c.js  53.6 kB
+  Γöö other shared chunks (total)          1.95 kB
+
+
+╞Æ Middleware                             79.6 kB
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

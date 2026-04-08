@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  Upload, 
   FileText, 
   Image as ImageIcon, 
   Check, 
@@ -13,7 +12,6 @@ import {
   Plus, 
   ShieldAlert, 
   ArrowLeft,
-  BookOpen,
   Tag,
   Info
 } from "lucide-react";
@@ -21,12 +19,13 @@ import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types/database";
 import Link from "next/link";
+import Image from "next/image";
 
 type Category = Database["public"]["Tables"]["categories"]["Row"];
 
 export default function UploadContent() {
   const router = useRouter();
-  const { user, isAdmin, loading: authLoading } = useUser();
+  const { isAdmin, loading: authLoading } = useUser();
   const supabase = createClient();
 
   // Form State
@@ -150,6 +149,7 @@ export default function UploadContent() {
       // 3. Create DB Entry
       const { error: dbError } = await supabase
         .from("books")
+        // @ts-expect-error - Ignore never type inference
         .insert({
           title,
           author: author || null,
@@ -170,8 +170,9 @@ export default function UploadContent() {
 
       setSuccess(true);
       setTimeout(() => router.push("/library"), 2000);
-    } catch (err: any) {
-      setError(err.message || "An error occurred during upload.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred during upload.";
+      setError(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -244,7 +245,12 @@ export default function UploadContent() {
                     />
                     {coverPreview ? (
                       <>
-                        <img src={coverPreview} alt="Preview" className="w-full h-full object-cover" />
+                        <Image 
+                          src={coverPreview} 
+                          alt="Preview" 
+                          fill 
+                          className="object-cover"
+                        />
                         <button 
                           type="button"
                           onClick={() => { setCoverFile(null); setCoverPreview(null); }}
