@@ -1,6 +1,6 @@
 "use client";
 
-import type { ChatMessage } from "@/hooks/useLibrarianChat";
+import type { ChatMessage } from "./LibrarianProvider";
 import { ExternalLink } from "lucide-react";
 
 interface Props { message: ChatMessage }
