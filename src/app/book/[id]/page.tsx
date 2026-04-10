@@ -72,12 +72,6 @@ export default async function BookPage({ params }: Props) {
       <Suspense>
         <BookDetailContent book={book} related={related} />
       </Suspense>
-      {/* Context-aware Librarian — overrides global instance on this page */}
-      <LibrarianChat
-        contextBookId={book.id}
-        contextBookTitle={book.title}
-        contextBookAuthor={book.author ?? undefined}
-      />
     </>
   );
 }

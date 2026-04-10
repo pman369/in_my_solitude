@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { BookOpen, Key, Library, User, Moon, Menu, X, LogOut } from "lucide-react";
+import { BookOpen, Key, Library, User, Moon, Menu, X, LogOut, ShieldAlert } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
 
@@ -34,7 +34,7 @@ export function Navbar() {
 
   const navLinks = [...NAV_LINKS];
   if (isAdmin) {
-    navLinks.push({ href: "/curator/books/upload", label: "Curator", icon: Library });
+    navLinks.push({ href: "/admin", label: "Admin", icon: ShieldAlert });
   }
 
   return (

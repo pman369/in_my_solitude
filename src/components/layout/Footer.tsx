@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Moon } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
 
 const FOOTER_LINKS = [
   {
@@ -24,6 +25,7 @@ const FOOTER_LINKS = [
 ];
 
 export function Footer() {
+  const { isAdmin } = useUser();
   return (
     <footer
       role="contentinfo"
@@ -49,7 +51,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* ── Navigation columns ────────────────────── */}
           {FOOTER_LINKS.map((col) => (
             <div key={col.heading} className="flex flex-col gap-3">
               <h3
@@ -67,6 +68,11 @@ export function Footer() {
                   {link.label}
                 </Link>
               ))}
+              {col.heading === "Account" && isAdmin && (
+                <Link href="/admin" className="footer-nav-link text-sm w-fit font-bold text-[#C9A84C]">
+                  Admin Panel
+                </Link>
+              )}
             </div>
           ))}
         </div>

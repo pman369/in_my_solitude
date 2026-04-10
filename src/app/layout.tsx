@@ -7,9 +7,8 @@ import "@fontsource/playfair-display/700.css";
 import "./globals.css";
 import "@/styles/librarian-chat.css";
 import { PreferencesProvider } from "@/components/providers/PreferencesProvider";
-import { LibrarianChat } from "@/components/chat/LibrarianChat";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { LibrarianChatProvider } from "@/components/chat/LibrarianProvider";
+import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: {
@@ -37,16 +36,9 @@ export default function RootLayout({
           Skip to content
         </a>
         <PreferencesProvider>
-          <Navbar />
-          <main
-            id="main-content"
-            className="flex-1 flex flex-col pt-16"
-          >
-            {children}
-          </main>
-          <Footer />
-          {/* The Librarian — available on every page, context-aware on book pages */}
-          <LibrarianChat />
+          <LibrarianChatProvider>
+            <LayoutWrapper>{children}</LayoutWrapper>
+          </LibrarianChatProvider>
         </PreferencesProvider>
       </body>
     </html>

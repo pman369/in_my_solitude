@@ -26,10 +26,15 @@ export async function middleware(request: NextRequest) {
   // Refresh session — keeps tokens alive across tabs/refreshes
   const { data: { user } } = await supabase.auth.getUser()
 
-  // ── Protect /admin ───────────────────────────────────
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  // ── Protect Admin Routes ───────────────────────────
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin') || 
+                       request.nextUrl.pathname.startsWith('/curator')
+
+  if (isAdminRoute) {
     if (!user) {
-      return NextResponse.redirect(new URL('/auth/login?next=/admin', request.url))
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('next', request.nextUrl.pathname)
+      return NextResponse.redirect(loginUrl)
     }
 
     const { data: profile } = await supabase
@@ -56,6 +61,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/curator/:path*',
     '/profile/:path*',
     '/auth/callback',
   ],

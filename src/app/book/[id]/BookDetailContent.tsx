@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { useReadingList } from "@/hooks/useReadingList";
+import { useLibrarianChat } from "@/hooks/useLibrarianChat";
 
 /* Types -------------------------------------------------------------------- */
 interface Category {
@@ -54,6 +55,13 @@ export default function BookDetailContent({ book, related }: Props) {
   const [readLoading, setReadLoading]   = useState(false);
   const [downloadUrl, setDownloadUrl]   = useState<string | null>(null);
   const [loginPrompt, setLoginPrompt]   = useState(false);
+
+  // Sync Librarian Chat context
+  useLibrarianChat({
+    contextBookId: book.id,
+    contextBookTitle: book.title,
+    contextBookAuthor: book.author ?? undefined,
+  });
 
   async function handleRead() {
     if (!book.file_url) return;
