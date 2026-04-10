@@ -26,7 +26,6 @@ export default function AdminDashboard() {
     bookRequests: 0,
     donations: 0,
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
@@ -51,8 +50,6 @@ export default function AdminDashboard() {
         });
       } catch (err) {
         console.error("Error fetching admin stats:", err);
-      } finally {
-        setLoading(false);
       }
     }
 

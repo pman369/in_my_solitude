@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import BookDetailContent from "./BookDetailContent";
-import { LibrarianChat } from "@/components/chat/LibrarianChat";
 import { notFound } from "next/navigation";
 import type { Database } from "@/types/database";
 
