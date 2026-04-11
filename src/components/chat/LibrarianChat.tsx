@@ -2,8 +2,10 @@
 
 import { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, RotateCcw, BookOpen } from "lucide-react";
+import { X, RotateCcw, BookOpen, ShieldAlert } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import Link from "next/link";
 import { useLibrarianChat } from "@/hooks/useLibrarianChat";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
@@ -18,6 +20,7 @@ interface Props {
 export function LibrarianChat({ contextBookId, contextBookTitle, contextBookAuthor }: Props) {
   const pathname      = usePathname();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { isAdmin } = useUser();
 
   const {
     messages, isLoading, isStreaming,
@@ -163,8 +166,17 @@ export function LibrarianChat({ contextBookId, contextBookTitle, contextBookAuth
             />
 
             {/* ── Footer ───────────────────────────────── */}
-            <div className="panel-footer">
-              Powered by Perplexity · Responses may contain inaccuracies
+            <div className="panel-footer flex items-center justify-between">
+              <span>Powered by Perplexity</span>
+              {isAdmin && (
+                <Link 
+                  href="/admin" 
+                  className="flex items-center gap-1.5 text-[#C9A84C] hover:text-[#F0EDE6] transition-colors font-bold uppercase tracking-tighter"
+                  style={{ fontSize: '9px' }}
+                >
+                  <ShieldAlert style={{ width: 10, height: 10 }} /> Admin Panel
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

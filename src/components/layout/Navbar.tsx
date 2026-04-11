@@ -33,9 +33,6 @@ export function Navbar() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   const navLinks = [...NAV_LINKS];
-  if (isAdmin) {
-    navLinks.push({ href: "/admin", label: "Admin", icon: ShieldAlert });
-  }
 
   return (
     <>
@@ -151,7 +148,7 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 pt-4" style={{ borderTop: "1px solid #2A2A2A" }}>
-              <MobileAuthArea />
+              <MobileAuthArea isAdmin={isAdmin} />
             </div>
           </nav>
         </div>
@@ -265,7 +262,7 @@ function NavbarAuthArea({ isActive }: { isActive: (href: string) => boolean }) {
   );
 }
 
-function MobileAuthArea() {
+function MobileAuthArea({ isAdmin }: { isAdmin: boolean }) {
   const { profile, loading, isAuthenticated } = useUser();
   const supabase = createClient();
 
@@ -287,6 +284,16 @@ function MobileAuthArea() {
           <User className="w-5 h-5" />
           {profile?.display_name ?? "My Shelf"}
         </Link>
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-4 px-4 py-4 rounded text-base font-bold"
+            style={{ color: "#C9A84C" }}
+          >
+            <ShieldAlert className="w-5 h-5" />
+            Admin Panel
+          </Link>
+        )}
         <button
           onClick={signOut}
           className="flex items-center gap-4 px-4 py-4 rounded text-base w-full text-left transition-colors duration-200"
