@@ -55,7 +55,7 @@ export default function ActivityLog() {
     if (data) {
       // Get user profiles
       const { data: profiles } = await supabase.from("user_profiles").select("id, display_name");
-      const enriched = (data as any[]).map(log => ({
+      const enriched = (data as any[]).map((log: any) => ({
         ...log,
         user: profiles?.find(p => p.id === log.user_id) || { display_name: "Unknown Curator" }
       })) as LogEntry[];
