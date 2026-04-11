@@ -17,7 +17,7 @@ interface LogParams {
   action: ActivityAction;
   targetId?: string;
   targetType?: "book" | "vault_request" | "book_request" | "donation";
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 /**

@@ -32,7 +32,7 @@ describe('Admin Activity Logger', () => {
 
   it('should handle missing user gracefully', async () => {
     const supabase = createClient();
-    // @ts-ignore
+    // @ts-expect-error - Mocking getUser response for testing
     supabase.auth.getUser.mockResolvedValueOnce({ data: { user: null } });
 
     await logActivity({ action: 'book_delete', targetId: '123' });

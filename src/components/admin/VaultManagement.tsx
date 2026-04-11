@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   CheckCircle, 
@@ -11,13 +11,11 @@ import {
   MessageSquare,
   User,
   ShieldCheck,
-  ShieldAlert,
-  ArrowRight
+  ShieldAlert
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/admin/activity-logger";
 import Image from "next/image";
-import Link from "next/link";
 import type { Database } from "@/types/database";
 
 type Request = Database["public"]["Tables"]["vault_access_requests"]["Row"] & {
@@ -33,11 +31,7 @@ export default function VaultManagement() {
   const [adminNote, setAdminNote] = useState("");
   const [activeTab, setActiveTab] = useState<"pending" | "reviewed">("pending");
 
-  useEffect(() => {
-    fetchRequests();
-  }, [activeTab]);
-
-  async function fetchRequests() {
+  const fetchRequests = useCallback(async () => {
     setLoading(true);
     let query = supabase
       .from("vault_access_requests")
@@ -55,9 +49,6 @@ export default function VaultManagement() {
 
     const { data } = await query;
     if (data) {
-      // Need to fetch user info - profiles are linked via id
-      // Since we can't do direct join on auth.users from client without special setup
-      // we assume display_name is in user_profiles
       const { data: profiles } = await supabase
         .from("user_profiles")
         .select("id, display_name");
@@ -70,7 +61,11 @@ export default function VaultManagement() {
       setRequests(enriched);
     }
     setLoading(false);
-  }
+  }, [activeTab, supabase]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   async function updateStatus(id: string, status: "approved" | "declined") {
     setProcessingId(id);
