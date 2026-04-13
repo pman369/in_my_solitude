@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -5,9 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   CheckCircle, 
   XCircle, 
-  Clock, 
   Loader2, 
-  ExternalLink,
   MessageSquare,
   User,
   ShieldCheck,
@@ -33,8 +32,8 @@ export default function VaultManagement() {
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
-    let query = supabase
-      .from("vault_access_requests")
+    let query = (supabase
+      .from("vault_access_requests") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .select(`
         *,
         book:books(title, cover_url)
@@ -49,13 +48,13 @@ export default function VaultManagement() {
 
     const { data } = await query;
     if (data) {
-      const { data: profiles } = await supabase
-        .from("user_profiles")
+      const { data: profiles } = await (supabase
+        .from("user_profiles") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
         .select("id, display_name");
 
-      const enriched = data.map(req => ({
+      const enriched = (data as any[]).map((req: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
         ...req,
-        user: profiles?.find(p => p.id === req.user_id) || { display_name: "Unknown Seeker" }
+        user: (profiles as any[])?.find(p => p.id === req.user_id) || { display_name: "Unknown Seeker" } // eslint-disable-line @typescript-eslint/no-explicit-any
       })) as Request[];
       
       setRequests(enriched);
@@ -69,8 +68,8 @@ export default function VaultManagement() {
 
   async function updateStatus(id: string, status: "approved" | "declined") {
     setProcessingId(id);
-    const { error } = await supabase
-      .from("vault_access_requests")
+    const { error } = await (supabase
+      .from("vault_access_requests") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .update({ 
         status, 
         reviewed_at: new Date().toISOString(),

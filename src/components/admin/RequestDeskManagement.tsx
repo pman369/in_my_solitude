@@ -1,14 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Plus, 
   CheckCircle, 
   XCircle, 
-  Clock, 
   Loader2, 
-  ExternalLink,
   BookPlus,
   Heart,
   User,
@@ -19,6 +17,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/admin/activity-logger";
+import Link from "next/link";
 import type { Database } from "@/types/database";
 
 type BookRequest = Database["public"]["Tables"]["book_requests"]["Row"] & { type: 'request' };
@@ -32,44 +31,41 @@ export default function RequestDeskManagement() {
   const [activeTab, setActiveTab] = useState<"pending" | "fulfilled">("pending");
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchItems();
-  }, [activeTab]);
-
-  async function fetchItems() {
+  const fetchItems = useCallback(async () => {
     setLoading(true);
     
     // Fetch Requests
-    let reqQuery = supabase.from("book_requests").select("*");
+    let reqQuery = (supabase.from("book_requests") as any).select("*"); // eslint-disable-line @typescript-eslint/no-explicit-any
     if (activeTab === "pending") reqQuery = reqQuery.eq("status", "open");
     else reqQuery = reqQuery.neq("status", "open");
     const { data: requests } = await reqQuery;
 
     // Fetch Donations
-    let donQuery = supabase.from("book_donations").select("*");
+    let donQuery = (supabase.from("book_donations") as any).select("*"); // eslint-disable-line @typescript-eslint/no-explicit-any
     if (activeTab === "pending") donQuery = donQuery.eq("status", "under_review");
     else donQuery = donQuery.neq("status", "under_review");
     const { data: donations } = await donQuery;
 
+    // Merge and Sort
     const allItems = [
-      ...(requests || []).map(r => ({ ...r, type: 'request' as const })),
-      ...(donations || []).map(d => ({ ...d, type: 'donation' as const }))
-    ].sort((a, b) => {
-      const dateA = a.type === 'request' ? a.requested_at : a.submitted_at;
-      const dateB = b.type === 'request' ? b.requested_at : b.submitted_at;
-      return new Date(dateB || "").getTime() - new Date(dateA || "").getTime();
-    });
+      ...(requests || []).map(r => ({ ...r, type: "request" as const })),
+      ...(donations || []).map(d => ({ ...d, type: "donation" as const }))
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     // Enriched with user info
-    const { data: profiles } = await supabase.from("user_profiles").select("id, display_name");
+    const { data: profiles } = await (supabase.from("user_profiles") as any).select("id, display_name");
     const enriched = allItems.map(item => ({
       ...item,
-      user: profiles?.find(p => p.id === item.user_id) || { display_name: "Anonymous Seeker" }
+      user: (profiles as any[])?.find(p => p.id === item.user_id) || { display_name: "Anonymous Seeker" } // eslint-disable-line @typescript-eslint/no-explicit-any
     })) as DeskItem[];
 
     setItems(enriched);
     setLoading(false);
-  }
+  }, [supabase, activeTab]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   async function updateStatus(type: 'request' | 'donation', id: string, status: string) {
     setProcessingId(id);
@@ -82,7 +78,7 @@ export default function RequestDeskManagement() {
       const item = items.find(i => i.id === id);
       setItems(items.filter(i => i.id !== id));
       
-      let logAction: any;
+      let logAction: any; // eslint-disable-line @typescript-eslint/no-explicit-any
       if (type === 'request') {
         logAction = status === 'fulfilled' ? 'request_fulfill' : 'request_decline';
       } else {

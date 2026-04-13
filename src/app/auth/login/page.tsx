@@ -4,10 +4,10 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Moon, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Moon, Mail, Lock, ArrowRight, Loader2, ShieldAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-type Mode = "password" | "magic";
+type Mode = "password" | "magic" | "admin";
 
 function LoginForm() {
   const router = useRouter();
@@ -29,10 +29,15 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      if (mode === "password") {
+      if (mode === "password" || mode === "admin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) { setError(error.message); return; }
-        router.push(next);
+        
+        // If signing in as admin, force go to /admin if they actually have the role
+        // The middleware or useUser hook will handle the actual role check,
+        // but we can try to redirect them there.
+        const target = mode === "admin" ? "/admin" : next;
+        router.push(target);
         router.refresh();
       } else {
         const { error } = await supabase.auth.signInWithOtp({
@@ -107,28 +112,44 @@ function LoginForm() {
           /* ── Login form ─────────────────────────────── */
           <div
             className="rounded border p-8"
-            style={{ background: "#141414", borderColor: "#2A2A2A" }}
+            style={{ background: "#141414", borderColor: mode === "admin" ? "rgba(201,168,76,0.3)" : "#2A2A2A" }}
           >
             {/* Mode toggle */}
             <div
               className="flex rounded overflow-hidden mb-8 text-sm"
               style={{ border: "1px solid #2A2A2A" }}
             >
-              {(["password", "magic"] as Mode[]).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => { setMode(m); setError(""); }}
-                  className="flex-1 py-2.5 transition-all duration-200 text-xs tracking-wide uppercase"
-                  style={{
-                    background: mode === m ? "rgba(201,168,76,0.1)" : "transparent",
-                    color:      mode === m ? "#C9A84C" : "#9A9088",
-                    borderRight: m === "password" ? "1px solid #2A2A2A" : "none",
-                  }}
-                >
-                  {m === "password" ? "Password" : "Magic Link"}
-                </button>
-              ))}
+              {(["password", "magic", "admin"] as Mode[]).map((m) => {
+                const isAdmin = m === "admin";
+                const isMagic = m === "magic";
+                const isPassword = m === "password";
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => { setMode(m); setError(""); }}
+                    className="flex-1 py-2.5 transition-all duration-300 text-[10px] tracking-widest uppercase font-bold flex items-center justify-center gap-1.5"
+                    style={{
+                      background: mode === m ? (isAdmin ? "rgba(201,168,76,0.2)" : "rgba(201,168,76,0.1)") : "transparent",
+                      color:      mode === m ? "#C9A84C" : "#9A9088",
+                      borderRight: m !== "admin" ? "1px solid #2A2A2A" : "none",
+                    }}
+                  >
+                    {isAdmin && <ShieldAlert className="w-3 h-3" />}
+                    {m === "password" ? "Pass" : m === "magic" ? "Magic" : "Admin"}
+                  </button>
+                );
+              })}
             </div>
+
+            {mode === "admin" && (
+              <div className="mb-6 p-3 rounded bg-[#C9A84C]/5 border border-[#C9A84C]/20 flex items-start gap-3">
+                <ShieldAlert className="w-4 h-4 text-[#C9A84C] mt-0.5 flex-shrink-0" />
+                <p className="text-[10px] leading-relaxed text-[#9A9088] uppercase tracking-wider">
+                  You are entering the <strong className="text-[#C9A84C]">Curator Portal</strong>. Only registered archivist credentials will be granted passage.
+                </p>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} noValidate aria-label="Sign in form">
               {/* Email */}
@@ -229,7 +250,7 @@ function LoginForm() {
                 {loading
                   ? <Loader2 className="w-4 h-4 animate-spin" />
                   : <>
-                      {mode === "password" ? "Sign In" : "Send Magic Link"}
+                      {mode === "admin" ? "Authenticate Curator" : mode === "password" ? "Sign In" : "Send Magic Link"}
                       <ArrowRight className="w-4 h-4" />
                     </>
                 }

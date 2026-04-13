@@ -1,25 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, 
-  Filter, 
-  MoreVertical, 
-  Edit2, 
   Trash2, 
-  Eye, 
-  EyeOff, 
+  Edit2, 
+  Plus, 
   CheckCircle, 
-  XCircle,
-  Loader2,
-  ArrowUpDown,
-  ExternalLink,
-  BookOpen,
-  FileDown
+  XCircle, 
+  Clock, 
+  Loader2, 
+  Lock,
+  FileDown,
+  BookOpen
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { useUser } from "@/hooks/useUser";
 import { logActivity } from "@/lib/admin/activity-logger";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,7 +28,6 @@ type Book = Database["public"]["Tables"]["books"]["Row"] & {
 
 export default function BookManagement() {
   const supabase = createClient();
-  const { isAdmin } = useUser();
   
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,20 +37,15 @@ export default function BookManagement() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchBooks();
-    fetchCategories();
-  }, []);
-
-  async function fetchCategories() {
-    const { data } = await supabase.from("categories").select("id, name").order("name");
+  const fetchCategories = useCallback(async () => {
+    const { data } = await (supabase.from("categories") as any).select("id, name").order("name"); // eslint-disable-line @typescript-eslint/no-explicit-any
     if (data) setCategories(data);
-  }
+  }, [supabase]);
 
-  async function fetchBooks() {
+  const fetchBooks = useCallback(async () => {
     setLoading(true);
-    let query = supabase
-      .from("books")
+    const query = (supabase
+      .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .select(`
         *,
         category:categories(name)
@@ -63,13 +54,18 @@ export default function BookManagement() {
 
     const { data, error } = await query;
     if (error) console.error("Error fetching books:", error);
-    else setBooks(data as Book[]);
+    else setBooks(data || []);
     setLoading(false);
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBooks();
+  }, [fetchCategories, fetchBooks]);
 
   async function togglePublished(id: string, current: boolean) {
-    const { error } = await supabase
-      .from("books")
+    const { error } = await (supabase
+      .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .update({ is_published: !current })
       .eq("id", id);
     
@@ -88,8 +84,8 @@ export default function BookManagement() {
     if (!confirm("Are you sure you want to delete this tome? This action is permanent and will remove the entry from the ledger.")) return;
     
     setDeletingId(id);
-    const { error } = await supabase
-      .from("books")
+    const { error } = await (supabase
+      .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .delete()
       .eq("id", id);
 

@@ -166,15 +166,15 @@ export function LibrarianChat({ contextBookId, contextBookTitle, contextBookAuth
             />
 
             {/* ── Footer ───────────────────────────────── */}
-            <div className="panel-footer flex items-center justify-between">
-              <span>Powered by Perplexity</span>
+            <div className="panel-footer flex items-center justify-between border-t border-[#2A2A2A] pt-4 mt-2">
+              <span className="text-[10px] opacity-50 uppercase tracking-widest">Powered by Perplexity</span>
               {isAdmin && (
                 <Link 
                   href="/admin" 
-                  className="flex items-center gap-1.5 text-[#C9A84C] hover:text-[#F0EDE6] transition-colors font-bold uppercase tracking-tighter"
-                  style={{ fontSize: '9px' }}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#C9A84C]/10 border border-[#C9A84C]/30 text-[#C9A84C] hover:bg-[#C9A84C] hover:text-[#0D0D0D] transition-all duration-300 font-bold uppercase tracking-widest"
+                  style={{ fontSize: '10px' }}
                 >
-                  <ShieldAlert style={{ width: 10, height: 10 }} /> Admin Panel
+                  <ShieldAlert style={{ width: 12, height: 12 }} /> Admin Dashboard
                 </Link>
               )}
             </div>

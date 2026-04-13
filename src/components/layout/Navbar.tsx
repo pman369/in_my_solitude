@@ -32,7 +32,9 @@ export function Navbar() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  const navLinks = [...NAV_LINKS];
+  const navLinks = isAdmin 
+    ? [...NAV_LINKS.slice(0, 3), { href: "/admin", label: "Admin Panel", icon: ShieldAlert }, ...NAV_LINKS.slice(3)]
+    : [...NAV_LINKS];
 
   return (
     <>
@@ -160,7 +162,7 @@ export function Navbar() {
 /* ─────────────────────────── Auth sub-components ─────────────────────────── */
 
 function NavbarAuthArea({ isActive }: { isActive: (href: string) => boolean }) {
-  const { user, profile, loading, isAuthenticated } = useUser();
+  const { user, profile, loading, isAuthenticated, isAdmin } = useUser();
   const supabase = createClient();
 
   const displayName = profile?.display_name ?? user?.email ?? null;
@@ -185,6 +187,34 @@ function NavbarAuthArea({ isActive }: { isActive: (href: string) => boolean }) {
   if (isAuthenticated) {
     return (
       <div className="hidden md:flex items-center gap-2">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 px-3 py-2 rounded border text-xs font-bold transition-all duration-200 uppercase tracking-tighter"
+            style={{
+              border: isActive("/admin") ? "1px solid rgba(201,168,76,0.6)" : "1px solid rgba(201,168,76,0.25)",
+              color: isActive("/admin") ? "#F0EDE6" : "#C9A84C",
+              background: isActive("/admin") ? "rgba(201,168,76,0.15)" : "transparent",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,76,0.6)";
+              (e.currentTarget as HTMLElement).style.color = "#F0EDE6";
+              (e.currentTarget as HTMLElement).style.background = "rgba(201,168,76,0.1)";
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive("/admin")) {
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,76,0.25)";
+                (e.currentTarget as HTMLElement).style.color = "#C9A84C";
+                (e.currentTarget as HTMLElement).style.background = "transparent";
+              }
+            }}
+            aria-label="Admin Dashboard"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            <span className="hidden lg:inline">Admin Panel</span>
+            <span className="lg:hidden">Admin</span>
+          </Link>
+        )}
         <Link
           href="/profile"
           className="flex items-center gap-2 px-3 py-2 rounded border text-sm transition-all duration-200"

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@/lib/supabase/client";
 
 export type ActivityAction = 
@@ -31,7 +32,7 @@ export async function logActivity({ action, targetId, targetType, details }: Log
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase.from("activity_logs").insert({
+    await (supabase.from("activity_logs") as any).insert({ // eslint-disable-line @typescript-eslint/no-explicit-any
       user_id: user.id,
       action,
       target_id: targetId,
