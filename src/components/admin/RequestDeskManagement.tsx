@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   CheckCircle, 
@@ -48,9 +48,13 @@ export default function RequestDeskManagement() {
 
     // Merge and Sort
     const allItems = [
-      ...(requests || []).map(r => ({ ...r, type: "request" as const })),
-      ...(donations || []).map(d => ({ ...d, type: "donation" as const }))
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      ...(requests as any[] || []).map((r: any) => ({ ...r, type: "request" as const })),
+      ...(donations as any[] || []).map((d: any) => ({ ...d, type: "donation" as const }))
+    ].sort((a, b) => {
+      const dateA = new Date(a.type === 'request' ? a.requested_at : a.submitted_at).getTime();
+      const dateB = new Date(b.type === 'request' ? b.requested_at : b.submitted_at).getTime();
+      return dateB - dateA;
+    });
 
     // Enriched with user info
     const { data: profiles } = await (supabase.from("user_profiles") as any).select("id, display_name");

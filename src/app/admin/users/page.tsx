@@ -76,7 +76,7 @@ export default function UserManagementPage() {
   }, [fetchUsers]);
 
   async function updateRole(userId: string, newRole: 'reader' | 'sub_admin' | 'admin') {
-    if (!isAdmin) {
+    if (!isAdmin || !currentUser) {
       alert("Only primary admins can change roles.");
       return;
     }
