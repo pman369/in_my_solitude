@@ -90,8 +90,7 @@ export default function NewBookPage() {
 
     try {
       // 1. Insert book record
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: book, error: bookError } = await (supabase
+      const { data: book, error: bookError } = await supabase
         .from("books")
         .insert({
           title:             form.title,
@@ -108,12 +107,12 @@ export default function NewBookPage() {
           uploaded_by:       user.id,
           last_modified_by:  user.id,
           last_modified_at:  new Date().toISOString(),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any)
+        })
         .select()
-        .single());
+        .single();
 
       if (bookError) throw bookError;
+      if (!book) throw new Error("Failed to create book record.");
 
       // 2. Upload Cover
       const coverExt = coverFile.name.split('.').pop();
