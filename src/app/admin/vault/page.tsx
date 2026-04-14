@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -70,7 +71,7 @@ export default function VaultQueuePage() {
   }, [fetchRequests]);
 
   async function reviewRequest(requestId: string, decision: 'approved' | 'denied', adminNote: string = "") {
-    if (!user) return;
+    if (!user || !isAdmin) return;
     setProcessingId(requestId);
     
     try {
