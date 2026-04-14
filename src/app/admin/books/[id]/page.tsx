@@ -185,7 +185,8 @@ export default function EditBookPage() {
 
       const { error: updateError } = await supabase
         .from("books")
-        .update(updateData)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update(updateData as any)
         .eq("id", id);
 
       if (updateError) throw updateError;
