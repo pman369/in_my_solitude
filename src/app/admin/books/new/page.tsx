@@ -89,8 +89,8 @@ export default function NewBookPage() {
     setError(null);
 
     try {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       // 1. Insert book record
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: book, error: bookError } = await (supabase
         .from("books") as any)
         .insert({
@@ -138,7 +138,6 @@ export default function NewBookPage() {
       if (pdfUploadError) throw pdfUploadError;
 
       // 4. Update book with URLs and file size
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error: updateError } = await (supabase
         .from("books") as any)
         .update({
@@ -151,7 +150,6 @@ export default function NewBookPage() {
       if (updateError) throw updateError;
 
       // 5. Log activity
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from("admin_activity_log") as any).insert({
         admin_id: user.id,
         action: "book_uploaded",
@@ -159,6 +157,7 @@ export default function NewBookPage() {
         target_id: book.id,
         metadata: { title: form.title, author: form.author }
       });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       router.push(`/admin/books?uploaded=true`);
       
