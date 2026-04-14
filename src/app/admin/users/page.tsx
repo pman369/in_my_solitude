@@ -30,7 +30,7 @@ type Profile = {
 
 export default function UserManagementPage() {
   const supabase = createClient();
-  const { user: currentUser } = useUser();
+  const { user: currentUser, isAdmin } = useUser();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -75,7 +75,7 @@ export default function UserManagementPage() {
   }, [fetchUsers]);
 
   async function updateRole(userId: string, newRole: 'reader' | 'sub_admin' | 'admin') {
-    if (!currentUser || currentUser.role !== 'admin') {
+    if (!isAdmin) {
       alert("Only primary admins can change roles.");
       return;
     }
@@ -86,7 +86,7 @@ export default function UserManagementPage() {
     }
 
     if (confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("user_profiles")
         .update({ role: newRole })
         .eq("id", userId);
@@ -94,7 +94,7 @@ export default function UserManagementPage() {
       if (!error) {
         setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
         // Log activity
-        await supabase.from("admin_activity_log").insert({
+        await (supabase as any).from("admin_activity_log").insert({
           admin_id: currentUser.id,
           action: "user_role_updated",
           target_type: "user",

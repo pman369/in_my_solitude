@@ -36,7 +36,7 @@ type Book = {
 
 export default function BookManagementPage() {
   const supabase = createClient();
-  const { user } = useUser();
+  const { user, isAdmin } = useUser();
   const [books, setBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +141,7 @@ export default function BookManagementPage() {
   }
 
   async function deleteBook(bookId: string) {
-    if (!user || user.role !== 'admin') {
+    if (!user || !isAdmin) {
       alert("Only primary admins can delete volumes.");
       return;
     }
@@ -330,7 +330,7 @@ export default function BookManagementPage() {
                         >
                           <Edit3 className="w-4 h-4" />
                         </Link>
-                        {user?.role === 'admin' && (
+                        {isAdmin && (
                           <button 
                             onClick={() => deleteBook(book.id)}
                             className="p-2 rounded-lg border border-[#2A2A2A] text-[#9A9088] hover:text-red-500 hover:border-red-500/40 transition-colors"

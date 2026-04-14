@@ -37,7 +37,7 @@ type VaultRequest = {
 
 export default function VaultQueuePage() {
   const supabase = createClient();
-  const { user } = useUser();
+  const { user, isAdmin } = useUser();
   const [requests, setRequests] = useState<VaultRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'pending' | 'approved' | 'denied'>('pending');
@@ -46,7 +46,7 @@ export default function VaultQueuePage() {
   const fetchRequests = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("vault_access_requests")
         .select(`
           *,
@@ -74,7 +74,7 @@ export default function VaultQueuePage() {
     setProcessingId(requestId);
     
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("vault_access_requests")
         .update({
           status: decision,
@@ -86,7 +86,7 @@ export default function VaultQueuePage() {
       if (error) throw error;
 
       // Log activity
-      await supabase.from("admin_activity_log").insert({
+      await (supabase as any).from("admin_activity_log").insert({
         admin_id: user.id,
         action: `vault_request_${decision}`,
         target_type: "vault_request",
