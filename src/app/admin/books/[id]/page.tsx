@@ -20,7 +20,8 @@ import { FileDropZone } from "@/components/admin/FileDropZone";
 
 export default function EditBookPage() {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : undefined;
   const { user } = useUser();
   const supabase = createClient();
 
@@ -56,14 +57,21 @@ export default function EditBookPage() {
 
   useEffect(() => {
     async function fetchData() {
+      if (!id) return;
       setLoading(true);
       try {
-        const catRes = await supabase.from("categories").select("id, name").order("name");
-        const bookRes = await supabase.from("books").select("*").eq("id", id).single();
+        const { data: catData } = await supabase.from("categories").select("id, name").order("name");
+        if (catData) setCategories(catData);
 
-        if (catRes.data) setCategories(catRes.data);
-        if (bookRes.data) {
-          const b = bookRes.data;
+        const { data: bookData, error: bookError } = await supabase
+          .from("books")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (bookError) throw bookError;
+        if (bookData) {
+          const b = bookData;
           setForm({
             title:             b.title || "",
             author:            b.author || "",
