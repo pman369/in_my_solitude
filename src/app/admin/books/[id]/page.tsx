@@ -193,7 +193,8 @@ export default function EditBookPage() {
       if (updateError) throw updateError;
 
       // 4. Log activity
-      await supabase.from("admin_activity_log").insert({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from("admin_activity_log") as any).insert({
         admin_id: user.id,
         action: "book_edited",
         target_type: "book",
