@@ -183,11 +183,12 @@ export default function EditBookPage() {
         updateData.file_size_bytes = fileSizeBytes;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       const { error: updateError } = await (supabase
         .from("books") as any)
         .update(updateData)
         .eq("id", id);
+      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       if (updateError) throw updateError;
 
