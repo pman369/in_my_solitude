@@ -100,40 +100,44 @@ export default function BookManagementPage() {
 
   async function togglePublish(bookId: string, currentState: boolean) {
     if (!user) return;
-    const { error } = await supabase
-      .from("books")
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const { error } = await (supabase
+      .from("books") as any)
       .update({ is_published: !currentState, last_modified_by: user.id })
       .eq("id", bookId);
 
     if (!error) {
       setBooks(books.map(b => b.id === bookId ? { ...b, is_published: !currentState } : b));
       // Log activity
-      await supabase.from("admin_activity_log").insert({
+      await (supabase.from("admin_activity_log") as any).insert({
         admin_id: user.id,
         action: currentState ? "book_unpublished" : "book_published",
         target_type: "book",
         target_id: bookId
       });
     }
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   async function toggleDownload(bookId: string, currentState: boolean) {
     if (!user) return;
-    const { error } = await supabase
-      .from("books")
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const { error } = await (supabase
+      .from("books") as any)
       .update({ download_enabled: !currentState, last_modified_by: user.id })
       .eq("id", bookId);
 
     if (!error) {
       setBooks(books.map(b => b.id === bookId ? { ...b, download_enabled: !currentState } : b));
       // Log activity
-      await supabase.from("admin_activity_log").insert({
+      await (supabase.from("admin_activity_log") as any).insert({
         admin_id: user.id,
         action: currentState ? "download_disabled" : "download_enabled",
         target_type: "book",
         target_id: bookId
       });
     }
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   async function deleteBook(bookId: string) {
@@ -143,16 +147,18 @@ export default function BookManagementPage() {
     }
 
     if (confirm("Are you sure you want to permanently remove this volume from the archive? This cannot be undone.")) {
-      const { error } = await supabase.from("books").delete().eq("id", bookId);
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const { error } = await (supabase.from("books") as any).delete().eq("id", bookId);
       if (!error) {
         setBooks(books.filter(b => b.id !== bookId));
-        await supabase.from("admin_activity_log").insert({
+        await (supabase.from("admin_activity_log") as any).insert({
           admin_id: user.id,
           action: "book_deleted",
           target_type: "book",
           target_id: bookId
         });
       }
+      /* eslint-enable @typescript-eslint/no-explicit-any */
     }
   }
 
