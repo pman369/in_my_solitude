@@ -71,7 +71,8 @@ export default function EditBookPage() {
 
         if (bookError) throw bookError;
         if (bookData) {
-          const b = bookData;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const b = bookData as any;
           setForm({
             title:             b.title || "",
             author:            b.author || "",
