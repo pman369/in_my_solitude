@@ -90,8 +90,9 @@ export default function NewBookPage() {
 
     try {
       // 1. Insert book record
-      const { data: book, error: bookError } = await supabase
-        .from("books")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: book, error: bookError } = await (supabase
+        .from("books") as any)
         .insert({
           title:             form.title,
           author:            form.author,
@@ -137,8 +138,9 @@ export default function NewBookPage() {
       if (pdfUploadError) throw pdfUploadError;
 
       // 4. Update book with URLs and file size
-      const { error: updateError } = await supabase
-        .from("books")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: updateError } = await (supabase
+        .from("books") as any)
         .update({
           cover_url: coverUrl,
           file_url: pdfPath,
@@ -149,7 +151,8 @@ export default function NewBookPage() {
       if (updateError) throw updateError;
 
       // 5. Log activity
-      await supabase.from("admin_activity_log").insert({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from("admin_activity_log") as any).insert({
         admin_id: user.id,
         action: "book_uploaded",
         target_type: "book",
