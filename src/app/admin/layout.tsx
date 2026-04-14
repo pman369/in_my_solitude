@@ -17,6 +17,8 @@ import {
   X
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
   children,
@@ -24,6 +26,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, profile, loading, isAdmin } = useUser();
   const supabase = createClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState({
@@ -69,6 +73,43 @@ export default function AdminLayout({
   const activeItem = navItems.find(item => 
     item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#C9A84C]/20 border-t-[#C9A84C] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md">
+          <ShieldAlert className="w-16 h-16 text-[#F87171] mx-auto mb-6 opacity-80" />
+          <h1 className="font-heading text-3xl text-[#F0EDE6] mb-4">Unauthorized Passage</h1>
+          <p className="text-[#9A9088] mb-8 leading-relaxed">
+            Your current credentials do not grant access to the Curator Stacks. 
+            If you believe this is an error, please verify your role in the archives.
+          </p>
+          <div className="flex flex-col gap-3">
+             <button onClick={() => router.push('/')} className="px-6 py-2.5 rounded bg-[#1A1A1A] border border-[#2A2A2A] text-[#F0EDE6] text-sm hover:border-white/20 transition-colors">
+               Return Home
+             </button>
+             <button onClick={() => router.push('/auth/login')} className="px-6 py-2.5 rounded bg-[#C9A84C] text-[#0D0D0D] text-sm font-bold hover:bg-[#D4B96A] transition-colors">
+               Switch Account
+             </button>
+             <div className="mt-6 pt-6 border-t border-[#2A2A2A] text-[10px] text-left text-[#555] font-mono">
+               DEBUG INFO:<br/>
+               ID: {user?.id || 'none'}<br/>
+               Role: {profile?.role || 'none'}<br/>
+               Email: {user?.email || 'none'}
+             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0D0D0D] flex flex-col md:flex-row text-[#F0EDE6] selection:bg-[#C9A84C]/30">
