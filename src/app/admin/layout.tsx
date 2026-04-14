@@ -14,11 +14,9 @@ import {
   User,
   ShieldAlert,
   Menu,
-  X,
-  ChevronRight
+  X
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminLayout({
   children,

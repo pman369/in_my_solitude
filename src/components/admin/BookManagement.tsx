@@ -7,14 +7,15 @@ import {
   Search, 
   Trash2, 
   Edit2, 
-  Plus, 
   CheckCircle, 
   XCircle, 
-  Clock, 
   Loader2, 
   Lock,
   FileDown,
-  BookOpen
+  BookOpen,
+  Eye,
+  EyeOff,
+  ExternalLink
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/admin/activity-logger";

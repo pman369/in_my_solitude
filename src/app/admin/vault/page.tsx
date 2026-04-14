@@ -7,17 +7,13 @@ import {
   Clock, 
   CheckCircle2, 
   XCircle, 
-  Mail, 
   MessageSquare,
   Loader2,
-  AlertCircle,
-  ExternalLink,
   ChevronRight
 } from "lucide-react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 type VaultRequest = {
   id: string;
@@ -61,7 +57,7 @@ export default function VaultQueuePage() {
         .order("requested_at", { ascending: false });
 
       if (error) throw error;
-      setRequests(data as any[] || []);
+      setRequests(data as VaultRequest[] || []);
     } catch (err) {
       console.error("Error fetching vault requests:", err);
     } finally {
@@ -159,6 +155,7 @@ export default function VaultQueuePage() {
               <div className="w-full md:w-64 bg-[#0D0D0D] p-6 flex flex-col items-center text-center border-b md:border-b-0 md:border-r border-[#2A2A2A]">
                 <div className="w-32 aspect-[2/3] bg-[#141414] border border-[#2A2A2A] rounded shadow-lg overflow-hidden mb-4 relative">
                   {req.books.cover_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={req.books.cover_url} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#2A2A2A]">

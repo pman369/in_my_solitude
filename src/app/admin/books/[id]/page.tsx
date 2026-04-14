@@ -8,12 +8,11 @@ import {
   BookOpen, 
   Info, 
   Image as ImageIcon, 
-  FileText, 
   Settings,
   Loader2,
   AlertCircle,
   ShieldAlert,
-  Trash2
+  X
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
@@ -109,6 +108,10 @@ export default function EditBookPage() {
     }
   }
 
+  function removeTag(tag: string) {
+    setForm({ ...form, tags: form.tags.filter(t => t !== tag) });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
@@ -150,6 +153,7 @@ export default function EditBookPage() {
       }
 
       // 3. Update book record
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updateData: any = {
         title:             form.title,
         author:            form.author,
@@ -190,9 +194,9 @@ export default function EditBookPage() {
 
       router.push(`/admin/books?updated=true`);
       
-    } catch (err: any) {
+    } catch (err) {
       console.error("Update error:", err);
-      setError(err.message || "An unexpected error occurred during update.");
+      setError((err as Error).message || "An unexpected error occurred during update.");
     } finally {
       setSaving(false);
     }
@@ -301,6 +305,28 @@ export default function EditBookPage() {
                   <option value="Sanskrit">Sanskrit</option>
                   <option value="Arabic">Arabic</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="tags" className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Tags</label>
+              <div className="flex flex-wrap gap-2 p-2 bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg min-h-[50px]">
+                {form.tags.map(tag => (
+                  <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#1A1A1A] border border-[#2A2A2A] text-xs text-[#C9A84C]">
+                    {tag}
+                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-400">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder={form.tags.length === 0 ? "Press enter to add tags..." : ""}
+                  className="flex-1 min-w-[120px] bg-transparent outline-none text-sm px-2"
+                />
               </div>
             </div>
           </div>

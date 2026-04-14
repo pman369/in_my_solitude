@@ -121,8 +121,6 @@ function LoginForm() {
             >
               {(["password", "magic", "admin"] as Mode[]).map((m) => {
                 const isAdmin = m === "admin";
-                const isMagic = m === "magic";
-                const isPassword = m === "password";
                 return (
                   <button
                     key={m}

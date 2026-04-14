@@ -11,8 +11,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
-  AlertCircle,
-  FileText
+  AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";

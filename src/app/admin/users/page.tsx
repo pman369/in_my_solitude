@@ -7,7 +7,6 @@ import {
   Filter, 
   Shield, 
   User as UserIcon, 
-  Clock, 
   MoreHorizontal,
   Loader2,
   ChevronLeft,
@@ -19,7 +18,6 @@ import {
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
-import { motion } from "framer-motion";
 
 type Profile = {
   id: string;

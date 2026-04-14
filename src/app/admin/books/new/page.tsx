@@ -8,9 +8,8 @@ import {
   BookOpen, 
   Info, 
   Image as ImageIcon, 
-  FileText, 
   Settings,
-  Plus,
+  ShieldAlert,
   X,
   Loader2,
   AlertCircle
@@ -28,7 +27,6 @@ export default function NewBookPage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   // Files state
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -92,7 +90,8 @@ export default function NewBookPage() {
 
     try {
       // 1. Insert book record
-      const { data: book, error: bookError } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: book, error: bookError } = await (supabase
         .from("books")
         .insert({
           title:             form.title,
@@ -109,9 +108,10 @@ export default function NewBookPage() {
           uploaded_by:       user.id,
           last_modified_by:  user.id,
           last_modified_at:  new Date().toISOString(),
-        })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
         .select()
-        .single();
+        .single());
 
       if (bookError) throw bookError;
 
@@ -158,12 +158,11 @@ export default function NewBookPage() {
         metadata: { title: form.title, author: form.author }
       });
 
-      setSuccess(true);
       router.push(`/admin/books?uploaded=true`);
       
-    } catch (err: any) {
+    } catch (err) {
       console.error("Upload error:", err);
-      setError(err.message || "An unexpected error occurred during upload.");
+      setError((err as Error).message || "An unexpected error occurred during upload.");
     } finally {
       setLoading(false);
     }

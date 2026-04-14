@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileText, X, AlertCircle } from "lucide-react";
+import { Upload, FileText, AlertCircle } from "lucide-react";
 
 interface FileDropZoneProps {
   accept:       string          // e.g. 'image/*' or 'application/pdf'
@@ -70,6 +70,7 @@ export function FileDropZone({
         {/* Cover image preview */}
         {preview && (
           <div className="absolute inset-2 z-10 rounded-lg overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={preview} alt="Cover preview" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                <p className="text-white text-xs font-bold uppercase tracking-widest">Change Image</p>

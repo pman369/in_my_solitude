@@ -6,24 +6,19 @@ import {
   Search, 
   Plus, 
   Filter, 
-  MoreHorizontal, 
   Download, 
   Eye, 
   EyeOff, 
   Edit3, 
   Trash2,
-  ExternalLink,
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Check,
-  X,
-  AlertCircle
+  Lock
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
-import { motion, AnimatePresence } from "framer-motion";
 
 type Book = {
   id: string;

@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   BookOpen,
   Lock,
-  Inbox,
   AlertTriangle,
   ChevronLeft,
   ChevronRight
@@ -24,6 +23,7 @@ interface LogEntry {
   action: string;
   target_id: string;
   target_type: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
   performed_at: string;
   admin_id: string;
@@ -58,7 +58,7 @@ export default function AdminLedgerPage() {
         .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (error) throw error;
-      setLogs(data as any[] || []);
+      setLogs((data as unknown as LogEntry[]) || []);
       setTotalCount(count || 0);
     } catch (err) {
       console.error("Error fetching logs:", err);
