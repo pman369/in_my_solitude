@@ -50,6 +50,13 @@ export interface Database {
           views: number
           downloads: number
           is_published: boolean
+          language: string
+          publish_date: string | null
+          file_size_bytes: number
+          uploaded_by: string | null
+          last_modified_by: string | null
+          last_modified_at: string | null
+          download_enabled: boolean
         }
         Insert: {
           id?: string
@@ -66,6 +73,13 @@ export interface Database {
           views?: number
           downloads?: number
           is_published?: boolean
+          language?: string
+          publish_date?: string | null
+          file_size_bytes?: number
+          uploaded_by?: string | null
+          last_modified_by?: string | null
+          last_modified_at?: string | null
+          download_enabled?: boolean
         }
         Update: Partial<Database['public']['Tables']['books']['Insert']>
       }
@@ -307,6 +321,27 @@ export interface Database {
           donation_status_updates?: boolean
         }
         Update: Partial<Database['public']['Tables']['notification_preferences']['Insert']>
+      }
+      admin_activity_log: {
+        Row: {
+          id: string
+          admin_id: string
+          action: string
+          target_type: string | null
+          target_id: string | null
+          metadata: Json | null
+          performed_at: string
+        }
+        Insert: {
+          id?: string
+          admin_id: string
+          action: string
+          target_type?: string | null
+          target_id?: string | null
+          metadata?: Json | null
+          performed_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['admin_activity_log']['Insert']>
       }
     }
     Views: Record<string, never>
