@@ -58,10 +58,8 @@ export default function EditBookPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const [catRes, bookRes] = await Promise.all([
-          supabase.from("categories").select("id, name").order("name"),
-          supabase.from("books").select("*").eq("id", id).single()
-        ]);
+        const catRes = await supabase.from("categories").select("id, name").order("name");
+        const bookRes = await supabase.from("books").select("*").eq("id", id).single();
 
         if (catRes.data) setCategories(catRes.data);
         if (bookRes.data) {
