@@ -19,6 +19,8 @@ export interface UseUserReturn {
   isAuthenticated: boolean;
   /** Convenience boolean */
   isAdmin: boolean;
+  /** True if user exists in the newer admin_profiles registry */
+  isAdminProfile: boolean;
 }
 
 /**
@@ -34,6 +36,7 @@ export interface UseUserReturn {
 export function useUser(): UseUserReturn {
   const [user, setUser]       = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isAdminTable, setIsAdminTable] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Stable client ref so the subscription isn't torn down / re-created on renders
@@ -60,6 +63,15 @@ export function useUser(): UseUserReturn {
     return data;
   }
 
+  async function checkAdminTable(userId: string): Promise<boolean> {
+    const { data } = await supabase
+      .from("admin_profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+    return !!data;
+  }
+
   useEffect(() => {
     let cancelled = false;
 
@@ -68,8 +80,14 @@ export function useUser(): UseUserReturn {
       if (cancelled) return;
       setUser(user);
       if (user) {
-        const p = await fetchProfile(user.id);
-        if (!cancelled) setProfile(p);
+        const [p, isAdm] = await Promise.all([
+          fetchProfile(user.id),
+          checkAdminTable(user.id)
+        ]);
+        if (!cancelled) {
+          setProfile(p);
+          setIsAdminTable(isAdm);
+        }
       }
       setLoading(false);
     });
@@ -82,10 +100,17 @@ export function useUser(): UseUserReturn {
         setUser(nextUser);
 
         if (nextUser) {
-          const p = await fetchProfile(nextUser.id);
-          if (!cancelled) setProfile(p);
+          const [p, isAdm] = await Promise.all([
+            fetchProfile(nextUser.id),
+            checkAdminTable(nextUser.id)
+          ]);
+          if (!cancelled) {
+            setProfile(p);
+            setIsAdminTable(isAdm);
+          }
         } else {
           setProfile(null);
+          setIsAdminTable(false);
         }
 
         // Only keep loading true until the very first resolution
@@ -105,6 +130,7 @@ export function useUser(): UseUserReturn {
     profile,
     loading,
     isAuthenticated: !!user,
-    isAdmin: profile?.role === "admin",
+    isAdmin: profile?.role === "admin" || profile?.role === "sub_admin" || isAdminTable,
+    isAdminProfile: isAdminTable,
   };
 }
