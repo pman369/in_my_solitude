@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 const FROM_EMAIL = 'The Curator <curator@inmysolitude.app>'; // You would replace this with a verified domain email when in production
 
 // Common ethereal styling for emails
