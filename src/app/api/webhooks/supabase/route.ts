@@ -44,10 +44,13 @@ export async function POST(req: Request) {
       const request = record;
       
       // Fetch user profile and book details for the email context
-      const [{ data: profile }, { data: book }] = await Promise.all([
+      const [{ data: p }, { data: b }] = await Promise.all([
         supabase.from('user_profiles').select('email_notifications').eq('id', request.user_id).single(),
         supabase.from('books').select('title').eq('id', request.book_id).single()
       ]);
+      
+      const profile = p as unknown as { email_notifications: boolean } | null;
+      const book = b as unknown as { title: string } | null;
 
       if (profile?.email_notifications && book) {
         // Fetch user's email
