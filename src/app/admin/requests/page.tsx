@@ -214,7 +214,7 @@ export default function RequestDeskAdminPage() {
             <select 
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg pl-9 pr-8 py-2.5 text-xs text-[#9A9088] focus:border-[#C9A84C]/40 outline-none appearance-none cursor-pointer"
+              className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg pl-9 pr-8 py-2.5 text-xs text-[#9A9088] focus:border-[#C9A84C]/40 outline-none cursor-pointer"
             >
               <option value="all">All Status</option>
               {activeTab === 'requests' ? (

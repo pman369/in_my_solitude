@@ -240,7 +240,7 @@ export default function NewBookPage() {
                   required
                   value={form.category_id}
                   onChange={e => setForm({ ...form, category_id: e.target.value })}
-                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm focus:border-[#C9A84C]/40 outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm focus:border-[#C9A84C]/40 outline-none transition-all cursor-pointer"
                 >
                   <option value="">Select a Category</option>
                   {categories.map(cat => (
@@ -254,7 +254,7 @@ export default function NewBookPage() {
                   id="language"
                   value={form.language}
                   onChange={e => setForm({ ...form, language: e.target.value })}
-                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm focus:border-[#C9A84C]/40 outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm focus:border-[#C9A84C]/40 outline-none transition-all cursor-pointer"
                 >
                   <option value="English">English</option>
                   <option value="Ancient Greek">Ancient Greek</option>

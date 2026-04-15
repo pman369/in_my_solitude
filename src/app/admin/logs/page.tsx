@@ -92,7 +92,7 @@ export default function AdminLedgerPage() {
               <select 
                 value={filter}
                 onChange={(e) => { setFilter(e.target.value); setPage(1); }}
-                className="bg-[#141414] border border-[#2A2A2A] rounded-lg pl-9 pr-8 py-2 text-xs text-[#F0EDE6] focus:border-[#C9A84C]/40 outline-none appearance-none cursor-pointer font-bold uppercase tracking-widest"
+                className="bg-[#141414] border border-[#2A2A2A] rounded-lg pl-9 pr-8 py-2 text-xs text-[#F0EDE6] focus:border-[#C9A84C]/40 outline-none cursor-pointer font-bold uppercase tracking-widest"
               >
                 <option value="all">All Actions</option>
                 <option value="book">Books</option>

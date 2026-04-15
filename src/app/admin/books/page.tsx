@@ -197,7 +197,7 @@ export default function BookManagementPage() {
             <select 
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg pl-9 pr-8 py-2.5 text-xs text-[#9A9088] focus:border-[#C9A84C]/40 outline-none appearance-none cursor-pointer"
+              className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg pl-9 pr-8 py-2.5 text-xs text-[#9A9088] focus:border-[#C9A84C]/40 outline-none cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => (
@@ -210,7 +210,7 @@ export default function BookManagementPage() {
             <select 
               value={status}
               onChange={e => setStatus(e.target.value)}
-              className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-2.5 text-xs text-[#9A9088] focus:border-[#C9A84C]/40 outline-none appearance-none cursor-pointer"
+              className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-2.5 text-xs text-[#9A9088] focus:border-[#C9A84C]/40 outline-none cursor-pointer"
             >
               <option value="all">All Status</option>
               <option value="published">Published</option>
