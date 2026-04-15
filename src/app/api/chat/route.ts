@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { LIBRARIAN_SYSTEM_PROMPT } from "@/lib/chat/system-prompt";
 
-const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
-const MODEL              = "sonar-pro";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+const MODEL          = "gemini-2.5-flash";
 const RATE_LIMIT         = 20;
 const RATE_WINDOW_MS     = 60 * 60 * 1000; // 1 hour
 
@@ -112,11 +112,11 @@ and guide them through the request or donation process if needed.
 `;
     }
 
-    // ── Call Perplexity API (streaming) ──────────────────────
-    const perplexityRes = await fetch(PERPLEXITY_API_URL, {
+    // ── Call Gemini API (streaming) ──────────────────────
+    const geminiRes = await fetch(GEMINI_API_URL, {
       method:  "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        "Authorization": `Bearer ${process.env.GEMINI_API_KEY}`,
         "Content-Type":  "application/json",
         "Accept":        "text/event-stream",
       },
@@ -131,21 +131,19 @@ and guide them through the request or donation process if needed.
         temperature:           0.7,
         top_p:                 0.9,
         stream:                true,
-        return_citations:      true,
-        search_recency_filter: "month",
       }),
     });
 
-    if (!perplexityRes.ok) {
-      const errText = await perplexityRes.text();
-      console.error("Perplexity API error:", {
-        status: perplexityRes.status,
-        statusText: perplexityRes.statusText,
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error("Gemini API error:", {
+        status: geminiRes.status,
+        statusText: geminiRes.statusText,
         error: errText
       });
       
       // If unauthorized, it's likely a key issue
-      if (perplexityRes.status === 401) {
+      if (geminiRes.status === 401) {
         return NextResponse.json(
           { error: "The Librarian's credentials are invalid. Please check the API configuration." },
           { status: 502 }
@@ -168,8 +166,8 @@ and guide them through the request or donation process if needed.
       }).then(() => {});
     }
 
-    // ── Stream Perplexity response directly to browser ───────
-    return new NextResponse(perplexityRes.body, {
+    // ── Stream Gemini response directly to browser ───────
+    return new NextResponse(geminiRes.body, {
       headers: {
         "Content-Type":  "text/event-stream",
         "Cache-Control": "no-cache",
