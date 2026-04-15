@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# In My Solitude 🕯️
 
-## Getting Started
+A free, community-driven archive for awakening knowledge. Built in solitude, offered in solidarity. This platform hosts over three hundred volumes across forbidden history, consciousness, and mysticism—without paywalls, ads, or algorithms.
 
-First, run the development server:
+## Technology Stack
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, React Server Components)
+- **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL, Row Level Security)
+- **Styling:** Tailwind CSS & Framer Motion
+- **AI Integration:** Google Gemini API (Streaming "Librarian" Chat Agent)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Authentication & Access Flow
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The platform utilizes heavily locked-down Role-Based Access Control (RBAC):
+- **Public & Reading Access:** Anyone with a registered account can access open-stack books. Unauthenticated users are redirected to the Login page. 
+- **Role Verification:** Middleware intercepts incoming requests. Non-admins attempting to access `/admin` or `/curator` dashboards are hard-redirected to the homepage. API routes are strictly typed and verified on the server side.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### The Vault Access System
+Restricted books exist within "The Vault." These books are housed in a secure Supabase storage bucket (`vault-files`). Users cannot access the raw file URLs.
+1. The user creates a `vault_access_requests` entry, detailing their intent.
+2. An **Admin** (Curator) reviews the request on the Admin Dashboard and updates the status to `approved`.
+3. The server-side API Route `/api/storage/signed-url` cross-references the request status against the user session to dynamically issue a temporary, signed read-only link.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Initial Setup
 
-## Learn More
+1. **Clone & Install:**
+   ```bash
+   git clone <repo-url>
+   cd in_my_solitude
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Environment Variables:**
+   Copy the example environment file and fill in your Supabase connection strings and Google Gemini API keys:
+   ```bash
+   cp .env.example .env.local
+   ```
+   *Note: Ensure your Service Role key is only accessed securely within server routes to avoid exposing database capabilities.*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Database Initialization:**
+   If this is a fresh setup, push the required schema:
+   ```bash
+   npx supabase db push
+   ```
+   (Wait for standard manual seed data syncing if necessary).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Launch Dev Server:**
+   ```bash
+   npm run dev
+   ```
+   The platform operates at `http://localhost:3000`.

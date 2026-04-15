@@ -167,7 +167,7 @@ export function LibrarianChat({ contextBookId, contextBookTitle, contextBookAuth
 
             {/* ── Footer ───────────────────────────────── */}
             <div className="panel-footer flex items-center justify-between border-t border-[#2A2A2A] pt-4 mt-2">
-              <span className="text-[10px] opacity-50 uppercase tracking-widest">Powered by Perplexity</span>
+              <span className="text-[10px] opacity-50 uppercase tracking-widest">Powered by Gemini</span>
               {isAdmin && (
                 <Link 
                   href="/admin" 

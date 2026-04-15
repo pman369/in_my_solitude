@@ -27,10 +27,7 @@ export async function POST(request: NextRequest) {
       "anonymous";
 
     // ── Rate limit check ─────────────────────────────────────
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = supabase as any;
-
-    const { data: rateData } = await db
+    const { data: rateData } = await supabase
       .from("chat_rate_limits")
       .select("*")
       .eq("identifier", identifier)
@@ -43,7 +40,7 @@ export async function POST(request: NextRequest) {
       const windowExpired = now.getTime() - windowStart.getTime() > RATE_WINDOW_MS;
 
       if (windowExpired) {
-        await db
+        await supabase
           .from("chat_rate_limits")
           .update({ message_count: 1, window_start: now.toISOString(), last_message: now.toISOString() })
           .eq("identifier", identifier);
@@ -53,13 +50,13 @@ export async function POST(request: NextRequest) {
           { status: 429 }
         );
       } else {
-        await db
+        await supabase
           .from("chat_rate_limits")
           .update({ message_count: rateData.message_count + 1, last_message: now.toISOString() })
           .eq("identifier", identifier);
       }
     } else {
-      await db
+      await supabase
         .from("chat_rate_limits")
         .insert({ identifier, message_count: 1 });
     }
@@ -124,8 +121,7 @@ and guide them through the request or donation process if needed.
         model:    MODEL,
         messages: [
           { role: "system", content: contextualPrompt },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ...recentMessages.map((m: any) => ({ role: m.role, content: m.content })),
+          ...recentMessages.map((m: { role: string; content: string }) => ({ role: m.role, content: m.content })),
         ],
         max_tokens:            1024,
         temperature:           0.7,
@@ -159,7 +155,7 @@ and guide them through the request or donation process if needed.
     // ── Persist user message (fire-and-forget) ───────────────
     const lastUser = recentMessages[recentMessages.length - 1];
     if (lastUser?.role === "user" && sessionId) {
-      db.from("chat_messages").insert({
+      supabase.from("chat_messages").insert({
         session_id: sessionId,
         role:       "user",
         content:    lastUser.content,

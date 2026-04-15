@@ -37,14 +37,44 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin') || 
                        request.nextUrl.pathname.startsWith('/curator')
 
-  if (isAdminRoute && !user) {
-    const loginUrl = new URL('/auth/login', request.url)
-    loginUrl.searchParams.set('next', request.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
+  if (isAdminRoute) {
+    if (!user) {
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('next', request.nextUrl.pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    // Verify admin role via server query
+    const { data: adminProfile } = await supabase
+      .from('admin_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const { data: userProfile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const isAuthorizedAdmin = !!adminProfile || userProfile?.role === 'admin' || userProfile?.role === 'sub_admin';
+
+    if (!isAuthorizedAdmin) {
+      // Redirect non-admins to homepage with absolute URL
+      const homeUrl = new URL('/', request.url)
+      return NextResponse.redirect(homeUrl)
+    }
   }
 
-  // ── Protect /profile ─────────────────────────────────
-  if (request.nextUrl.pathname.startsWith('/profile') && !user) {
+  // ── Protect User & Archive Routes ──────────────────────
+  const isProtectedUserRoute = 
+    request.nextUrl.pathname.startsWith('/profile') ||
+    request.nextUrl.pathname.startsWith('/library') ||
+    request.nextUrl.pathname.startsWith('/vault') ||
+    request.nextUrl.pathname.startsWith('/book') ||
+    request.nextUrl.pathname.startsWith('/desk');
+
+  if (isProtectedUserRoute && !user) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('next', request.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
@@ -58,6 +88,10 @@ export const config = {
     '/admin/:path*',
     '/curator/:path*',
     '/profile/:path*',
+    '/library/:path*',
+    '/vault/:path*',
+    '/book/:path*',
+    '/desk/:path*',
     '/auth/callback',
   ],
 }

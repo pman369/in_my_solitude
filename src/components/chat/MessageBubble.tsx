@@ -2,16 +2,21 @@
 
 import type { ChatMessage } from "./LibrarianProvider";
 import { ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Props { message: ChatMessage }
 
 export function MessageBubble({ message }: Props) {
   const isAssistant = message.role === "assistant";
-
   return (
-    <div className={`message-bubble ${isAssistant ? "assistant" : "user"}`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 15, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      className={`message-bubble ${isAssistant ? "assistant" : "user"}`}
+    >
       {isAssistant && (
-        <div className="avatar librarian-avatar" aria-hidden="true">🕯</div>
+        <div className={`avatar librarian-avatar ${message.isStreaming ? 'is-streaming' : ''}`} aria-hidden="true">🕯</div>
       )}
 
       <div className="bubble-content">
@@ -44,7 +49,7 @@ export function MessageBubble({ message }: Props) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

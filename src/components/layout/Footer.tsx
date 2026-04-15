@@ -33,7 +33,7 @@ export function Footer() {
       style={{ borderTop: "1px solid #2A2A2A" }}
     >
       <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid md:grid-cols-3 gap-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 mb-12">
           {/* ── Brand column ─────────────────────────── */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2" aria-label="In My Solitude — Home">
@@ -75,6 +75,34 @@ export function Footer() {
               )}
             </div>
           ))}
+
+          {/* ── Contact column ─────────────────────────── */}
+          <div className="flex flex-col gap-3">
+            <h3
+              className="text-xs uppercase tracking-[0.2em] mb-2 font-heading"
+              style={{ color: "#C9A84C" }}
+            >
+              Contact
+            </h3>
+            <div className="text-sm space-y-2" style={{ color: "#9A9088" }}>
+              <p>
+                Email: <br className="hidden xl:block" />
+                <a href="mailto:THESOLITARYCURATOR@PROTONMAIL.COM" className="hover:text-[#F0EDE6] transition-colors break-all">
+                  THESOLITARYCURATOR<wbr/>@PROTONMAIL.COM
+                </a>
+              </p>
+              <p>
+                Phone: <br />
+                <a href="tel:+2347088106549" className="hover:text-[#F0EDE6] transition-colors">
+                  +2347088106549
+                </a>
+              </p>
+              <p>
+                Address: <br />
+                LAGOS, NG
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* ── Bottom bar ─────────────────────────────── */}
@@ -87,7 +115,7 @@ export function Footer() {
             No ads · No tracking · No social media.
           </p>
           <p style={{ color: "#2A2A2A" }}>
-            — The Curator
+            — A.B. PEACE
           </p>
         </div>
       </div>

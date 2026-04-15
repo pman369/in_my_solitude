@@ -17,7 +17,7 @@ const stagger: Variants = {
 const HOUSE_RULES = [
   {
     heading: "Reading is free",
-    body: "Every book in the open stacks can be read in-browser at no cost, with no account required. Downloads require a free account to prevent bulk harvesting.",
+    body: "Every book in the open stacks can be read in-browser at no cost. However, a free registered account is required to enter the archive and to prevent bulk harvesting.",
   },
   {
     heading: "The Vault requires honesty",
@@ -220,7 +220,7 @@ export default function AboutContent() {
                 I built it in solitude. I offer it freely. I ask only that you bring honesty — to
                 the texts, to the ideas, and to yourself.
               </p>
-              <p style={{ color: "#C9A84C" }}>— The Curator</p>
+              <p style={{ color: "#C9A84C" }}>— A.B. PEACE</p>
             </div>
           </motion.div>
         </motion.section>
