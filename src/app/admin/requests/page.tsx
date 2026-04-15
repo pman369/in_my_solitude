@@ -119,15 +119,17 @@ export default function RequestDeskAdminPage() {
     try {
       let error;
       const updateData = { 
-        status: newStatus as never, 
+        status: newStatus, 
         admin_note: adminNote,
         reviewed_at: new Date().toISOString()
       };
 
       if (table === 'book_requests') {
+        // @ts-expect-error - bypassing generated types
         const res = await supabase.from('book_requests').update(updateData).eq("id", id);
         error = res.error;
       } else {
+        // @ts-expect-error - bypassing generated types
         const res = await supabase.from('book_donations').update(updateData).eq("id", id);
         error = res.error;
       }
@@ -135,13 +137,14 @@ export default function RequestDeskAdminPage() {
       if (error) throw error;
 
       // Log activity
+      // @ts-expect-error - bypassing generated types
       await supabase.from("admin_activity_log").insert({
         admin_id: user.id,
         action: `${table === 'book_requests' ? 'request' : 'donation'}_${newStatus}`,
         target_type: table === 'book_requests' ? 'book_request' : 'book_donation',
         target_id: id,
         metadata: { status: newStatus, admin_note: adminNote }
-      } as never);
+      });
 
       // Update local state
       if (table === 'book_requests') {
