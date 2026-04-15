@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -15,7 +14,8 @@ import {
   Download,
   Book,
   User,
-  ExternalLink
+  ExternalLink,
+  LucideIcon
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
@@ -117,32 +117,37 @@ export default function RequestDeskAdminPage() {
     setProcessingId(id);
 
     try {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      const { error } = await (supabase.from(table) as any)
-        .update({ 
-          status: newStatus, 
-          admin_note: adminNote,
-          reviewed_at: new Date().toISOString()
-        })
-        .eq("id", id);
-      /* eslint-enable @typescript-eslint/no-explicit-any */
+      let error;
+      const updateData = { 
+        status: newStatus as never, 
+        admin_note: adminNote,
+        reviewed_at: new Date().toISOString()
+      };
+
+      if (table === 'book_requests') {
+        const res = await supabase.from('book_requests').update(updateData).eq("id", id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('book_donations').update(updateData).eq("id", id);
+        error = res.error;
+      }
 
       if (error) throw error;
 
       // Log activity
-      await (supabase.from("admin_activity_log") as any).insert({
+      await supabase.from("admin_activity_log").insert({
         admin_id: user.id,
         action: `${table === 'book_requests' ? 'request' : 'donation'}_${newStatus}`,
         target_type: table === 'book_requests' ? 'book_request' : 'book_donation',
         target_id: id,
         metadata: { status: newStatus, admin_note: adminNote }
-      });
+      } as never);
 
       // Update local state
       if (table === 'book_requests') {
-        setBookRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus as any, admin_note: adminNote } : r));
+        setBookRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus as BookRequest['status'], admin_note: adminNote } : r));
       } else {
-        setDonations(prev => prev.map(d => d.id === id ? { ...d, status: newStatus as any, admin_note: adminNote } : d));
+        setDonations(prev => prev.map(d => d.id === id ? { ...d, status: newStatus as Donation['status'], admin_note: adminNote } : d));
       }
     } catch (err) {
       console.error("Error updating status:", err);
@@ -153,7 +158,7 @@ export default function RequestDeskAdminPage() {
   }
 
   // --- Styles ---
-  const statusStyles: Record<string, { icon: any, color: string, bg: string, border: string }> = {
+  const statusStyles: Record<string, { icon: LucideIcon, color: string, bg: string, border: string }> = {
     open: { icon: Clock, color: 'text-[#C9A84C]', bg: 'bg-[#C9A84C]/10', border: 'border-[#C9A84C]/20' },
     under_review: { icon: Clock, color: 'text-[#C9A84C]', bg: 'bg-[#C9A84C]/10', border: 'border-[#C9A84C]/20' },
     fulfilled: { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
