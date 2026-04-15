@@ -27,7 +27,7 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, profile, loading, isAdmin } = useUser();
+  const { user, profile, loading, isAdmin, isAdminProfile } = useUser();
   const supabase = createClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState({
