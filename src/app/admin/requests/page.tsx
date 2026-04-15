@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -14,8 +15,7 @@ import {
   Download,
   Book,
   User,
-  ExternalLink,
-  ChevronRight
+  ExternalLink
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
