@@ -7,16 +7,16 @@ import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types/database";
 
 type VaultRequest = Database["public"]["Tables"]["vault_access_requests"]["Row"];
-type Book         = Database["public"]["Tables"]["books"]["Row"];
+type Book = Database["public"]["Tables"]["books"]["Row"];
 
 interface RequestWithBook extends VaultRequest {
   books: Pick<Book, "id" | "title" | "author" | "cover_url"> | null;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  pending:  { label: "Pending review", color: "#C9A84C", icon: Clock     },
-  approved: { label: "Approved",       color: "#065F46", icon: CheckCheck },
-  denied:   { label: "Declined",       color: "#991B1B", icon: X         },
+  pending: { label: "Pending review", color: "#C9A84C", icon: Clock },
+  approved: { label: "Approved", color: "#065F46", icon: CheckCheck },
+  denied: { label: "Declined", color: "#991B1B", icon: X },
 };
 
 interface Props { userId: string }
@@ -24,7 +24,7 @@ interface Props { userId: string }
 export default function MyVaultTab({ userId }: Props) {
   const supabase = useRef(createClient()).current;
   const [requests, setRequests] = useState<RequestWithBook[]>([]);
-  const [loading,  setLoading]  = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,7 +146,7 @@ export default function MyVaultTab({ userId }: Props) {
                   Read
                 </Link>
               )}
-            </div>
+            </div>swesar
 
             {/* Admin note (if declined) */}
             {req.admin_note && (

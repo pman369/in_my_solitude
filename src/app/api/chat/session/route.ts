@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { contextPage, contextBookId } = await request.json();
 
@@ -26,3 +26,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ sessionId: session.id });
 }
+

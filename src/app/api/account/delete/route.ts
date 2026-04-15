@@ -8,7 +8,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
  * Requires SUPABASE_SERVICE_ROLE_KEY.
  */
 export async function DELETE() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -30,3 +30,4 @@ export async function DELETE() {
 
   return NextResponse.json({ success: true });
 }
+

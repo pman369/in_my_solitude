@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing file parameter" }, { status: 400 });
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Require auth for downloads
   if (download) {
@@ -60,20 +60,23 @@ export async function GET(request: NextRequest) {
     // Look up a book whose file_url matches, then check access
     const filePath = [bucket, path].join("/");
 
-    const { data: book } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any;
+
+    const { data: book } = await db
       .from("books")
       .select("id")
       .eq("file_url", filePath)
-      .single();
+      .single() as { data: { id: string } | null };
 
     if (book) {
-      const { data: access } = await supabase
+      const { data: access } = await db
         .from("vault_access_requests")
         .select("id")
         .eq("user_id", user.id)
         .eq("book_id", book.id)
         .eq("status", "approved")
-        .single();
+        .single() as { data: { id: string } | null };
 
       if (!access) {
         return NextResponse.json({ error: "Access not approved for this Vault book" }, { status: 403 });
@@ -93,3 +96,4 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ url: data.signedUrl });
 }
+

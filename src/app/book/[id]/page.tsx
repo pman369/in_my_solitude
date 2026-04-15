@@ -24,7 +24,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("books")
     .select("title, author, description")
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BookPage({ params }: Props) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("books")

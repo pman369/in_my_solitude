@@ -322,6 +322,19 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['notification_preferences']['Insert']>
       }
+      admin_profiles: {
+        Row: {
+          id: string
+          role: string
+          created_at: string
+        }
+        Insert: {
+          id: string
+          role?: string
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['admin_profiles']['Insert']>
+      }
       admin_activity_log: {
         Row: {
           id: string

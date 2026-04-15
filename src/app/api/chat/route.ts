@@ -16,7 +16,7 @@ type RateRow = {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     // Identifier for rate limiting: user ID or IP
@@ -27,8 +27,10 @@ export async function POST(request: NextRequest) {
       "anonymous";
 
     // ── Rate limit check ─────────────────────────────────────
-    const { data: rateData } = await supabase
-      .from("chat_rate_limits")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rateLimitTable = (supabase as any).from("chat_rate_limits");
+
+    const { data: rateData } = await rateLimitTable
       .select("*")
       .eq("identifier", identifier)
       .single() as { data: RateRow | null };
@@ -40,8 +42,7 @@ export async function POST(request: NextRequest) {
       const windowExpired = now.getTime() - windowStart.getTime() > RATE_WINDOW_MS;
 
       if (windowExpired) {
-        await supabase
-          .from("chat_rate_limits")
+        await rateLimitTable
           .update({ message_count: 1, window_start: now.toISOString(), last_message: now.toISOString() })
           .eq("identifier", identifier);
       } else if (rateData.message_count >= RATE_LIMIT) {
@@ -50,14 +51,12 @@ export async function POST(request: NextRequest) {
           { status: 429 }
         );
       } else {
-        await supabase
-          .from("chat_rate_limits")
+        await rateLimitTable
           .update({ message_count: rateData.message_count + 1, last_message: now.toISOString() })
           .eq("identifier", identifier);
       }
     } else {
-      await supabase
-        .from("chat_rate_limits")
+      await rateLimitTable
         .insert({ identifier, message_count: 1 });
     }
 
@@ -155,7 +154,8 @@ and guide them through the request or donation process if needed.
     // ── Persist user message (fire-and-forget) ───────────────
     const lastUser = recentMessages[recentMessages.length - 1];
     if (lastUser?.role === "user" && sessionId) {
-      supabase.from("chat_messages").insert({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase as any).from("chat_messages").insert({
         session_id: sessionId,
         role:       "user",
         content:    lastUser.content,
@@ -179,3 +179,4 @@ and guide them through the request or donation process if needed.
     );
   }
 }
+
