@@ -40,3 +40,10 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# bulk import — ignore actual book files and import data, keep the script
+failed-import.csv
+scripts/covers/
+scripts/pdfs/
+scripts/*.csv
+!scripts/sample-books.csv
