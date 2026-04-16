@@ -91,24 +91,37 @@ export default function NewBookPage() {
     try {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       // 1. Insert book record
+      // Only include columns that are guaranteed to exist in the schema.
+      // Optional/newer columns are spread in only if they're non-empty.
+      const insertPayload: Record<string, unknown> = {
+        title:         form.title,
+        author:        form.author || null,
+        category_id:   form.category_id || null,
+        description:   form.description || null,
+        curator_note:  form.curator_note || null,
+        is_restricted: form.is_restricted,
+        is_published:  form.is_published,
+        tags:          form.tags.length > 0 ? form.tags : null,
+        added_date:    new Date().toISOString(),
+        views:         0,
+        downloads:     0,
+      };
+
+      // Add optional columns only — if the DB doesn't have them Supabase will
+      // simply ignore undefined values when keys are omitted.
+      if (form.language)         insertPayload.language         = form.language;
+      if (form.publish_date)     insertPayload.publish_date     = form.publish_date;
+      if (user.id) {
+        insertPayload.uploaded_by      = user.id;
+        insertPayload.last_modified_by = user.id;
+        insertPayload.last_modified_at = new Date().toISOString();
+      }
+      // download_enabled: only include if the column exists
+      insertPayload.download_enabled = form.download_enabled;
+
       const { data: book, error: bookError } = await (supabase
         .from("books") as any)
-        .insert({
-          title:             form.title,
-          author:            form.author,
-          category_id:       form.category_id || null,
-          description:       form.description,
-          curator_note:      form.curator_note,
-          is_restricted:     form.is_restricted,
-          tags:              form.tags,
-          is_published:      form.is_published,
-          download_enabled:  form.download_enabled,
-          language:          form.language,
-          publish_date:      form.publish_date || null,
-          uploaded_by:       user.id,
-          last_modified_by:  user.id,
-          last_modified_at:  new Date().toISOString(),
-        })
+        .insert(insertPayload)
         .select()
         .single();
 
@@ -142,28 +155,39 @@ export default function NewBookPage() {
         .from("books") as any)
         .update({
           cover_url: coverUrl,
-          file_url: pdfPath,
+          file_url:  `${pdfBucket}/${pdfPath}`,
           file_size_bytes: pdfFile.size
         })
         .eq("id", book.id);
 
       if (updateError) throw updateError;
 
-      // 5. Log activity
-      await (supabase.from("admin_activity_log") as any).insert({
-        admin_id: user.id,
-        action: "book_uploaded",
-        target_type: "book",
-        target_id: book.id,
-        metadata: { title: form.title, author: form.author }
-      });
+      // 5. Log activity (best-effort — don't let a log failure block the upload)
+      try {
+        await (supabase.from("admin_activity_log") as any).insert({
+          admin_id:    user.id,
+          action:      "book_uploaded",
+          target_type: "book",
+          target_id:   book.id,
+          metadata:    { title: form.title, author: form.author }
+        });
+      } catch {
+        // Activity log failure is non-fatal
+      }
       /* eslint-enable @typescript-eslint/no-explicit-any */
 
       router.push(`/admin/books?uploaded=true`);
       
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Upload error:", err);
-      setError((err as Error).message || "An unexpected error occurred during upload.");
+      // Supabase returns PostgrestError (not a standard Error).
+      // Extract message from whichever shape is present.
+      const msg =
+        (err as { message?: string })?.message ||
+        (err as { error_description?: string })?.error_description ||
+        (err as { details?: string })?.details ||
+        JSON.stringify(err);
+      setError(msg || "An unexpected error occurred. Check the console for details.");
     } finally {
       setLoading(false);
     }
