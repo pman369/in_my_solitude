@@ -1,14 +1,27 @@
 import type { Metadata } from "next";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/playfair-display/400.css";
-import "@fontsource/playfair-display/700.css";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import "@/styles/librarian-chat.css";
 import { PreferencesProvider } from "@/components/providers/PreferencesProvider";
 import { LibrarianChatProvider } from "@/components/chat/LibrarianProvider";
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
+
+// next/font: self-hosted, inlined CSS, zero layout shift, no external network request
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  variable: "--font-playfair",
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" data-theme="dark">
+    <html lang="en" className={`dark ${inter.variable} ${playfair.variable}`} data-theme="dark">
       <body className="antialiased min-h-screen flex flex-col" style={{ background: "#0D0D0D" }}>
         <a href="#main-content" className="skip-to-content">
           Skip to content
@@ -44,3 +57,4 @@ export default function RootLayout({
     </html>
   );
 }
+

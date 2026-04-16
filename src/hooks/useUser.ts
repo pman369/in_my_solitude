@@ -80,10 +80,11 @@ export function useUser(): UseUserReturn {
       if (cancelled) return;
       setUser(user);
       if (user) {
-        const [p, isAdm] = await Promise.all([
-          fetchProfile(user.id),
-          checkAdminTable(user.id)
-        ]);
+        // First fetch the profile — it's needed for most things
+        const p = await fetchProfile(user.id);
+        // Only hit admin_profiles if profile doesn't already say admin
+        const profileIsAdmin = p?.role === "admin" || p?.role === "sub_admin";
+        const isAdm = profileIsAdmin ? true : await checkAdminTable(user.id);
         if (!cancelled) {
           setProfile(p);
           setIsAdminTable(isAdm);
@@ -100,10 +101,9 @@ export function useUser(): UseUserReturn {
         setUser(nextUser);
 
         if (nextUser) {
-          const [p, isAdm] = await Promise.all([
-            fetchProfile(nextUser.id),
-            checkAdminTable(nextUser.id)
-          ]);
+          const p = await fetchProfile(nextUser.id);
+          const profileIsAdmin = p?.role === "admin" || p?.role === "sub_admin";
+          const isAdm = profileIsAdmin ? true : await checkAdminTable(nextUser.id);
           if (!cancelled) {
             setProfile(p);
             setIsAdminTable(isAdm);

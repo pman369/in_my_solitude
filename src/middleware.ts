@@ -44,18 +44,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
-    // Verify admin role via server query
-    const { data: adminProfile } = await supabase
-      .from('admin_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle()
+    // Verify admin role via server query — run both checks in parallel
+    const [{ data: adminProfile }, { data: userProfile }] = await Promise.all([
+      supabase
+        .from('admin_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle(),
+    ])
 
     const isAuthorizedAdmin = !!adminProfile || userProfile?.role === 'admin' || userProfile?.role === 'sub_admin';
 

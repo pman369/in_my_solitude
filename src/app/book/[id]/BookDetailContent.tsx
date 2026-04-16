@@ -154,6 +154,9 @@ export default function BookDetailContent({ book, related }: Props) {
                 <img
                   src={book.cover_url}
                   alt={`Cover of ${book.title}`}
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="sync"
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -382,7 +385,7 @@ export default function BookDetailContent({ book, related }: Props) {
                   >
                     {rel.cover_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={rel.cover_url} alt="" className="w-full h-full object-cover" />
+                      <img src={rel.cover_url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="font-heading text-2xl" style={{ color: "rgba(201,168,76,0.2)" }}>

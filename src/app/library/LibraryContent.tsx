@@ -341,6 +341,8 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             <img
               src={book.cover_url}
               alt=""
+              loading={index < 6 ? "eager" : "lazy"}
+              decoding="async"
               className="w-full h-full object-cover transition-transform duration-500"
               style={{ transform: hovered ? "scale(1.03)" : "scale(1)" }}
             />

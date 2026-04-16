@@ -33,11 +33,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--font-inter), system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: var(--font-playfair), Georgia, serif;
     @apply text-gold;
   }
 }
@@ -47,7 +47,7 @@
     text-wrap: balance;
   }
   .font-heading {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: var(--font-playfair), Georgia, serif;
   }
   .text-gold {
     color: #C9A84C;
@@ -83,9 +83,9 @@
 
   --reading-font-size:   16px;
   --reading-line-height: 1.5;
-  --reading-font-family: 'Playfair Display', Georgia, serif;
+  --reading-font-family: var(--font-playfair), Georgia, serif;
 
-  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-heading: var(--font-playfair), Georgia, serif;
 }
 
 /* ── Reading Themes ───────────────────────────────── */
