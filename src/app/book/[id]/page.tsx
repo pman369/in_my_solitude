@@ -20,15 +20,16 @@ interface RelatedBook {
 }
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase
     .from("books")
     .select("title, author, description")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   const book = data as Pick<Book, "title" | "author" | "description"> | null;
@@ -43,12 +44,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BookPage({ params }: Props) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const { data } = await supabase
     .from("books")
     .select("*, categories(*)")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("is_published", true)
     .single();
 

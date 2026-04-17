@@ -13,15 +13,16 @@ interface BookWithCategory extends Book {
 }
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase
     .from("books")
     .select("title, author")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
   const book = data as Pick<Book, "title" | "author"> | null;
   if (!book) return { title: "Book not found" };
@@ -32,12 +33,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function VaultRequestPage({ params }: Props) {
+  const { id } = await params;
   const supabase = await createClient();
 
   const { data } = await supabase
     .from("books")
     .select("*, categories(*)")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("is_restricted", true)
     .single();
 
