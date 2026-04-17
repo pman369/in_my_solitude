@@ -24,7 +24,7 @@ Restricted books exist within "The Vault." These books are housed in a secure Su
 
 1. **Clone & Install:**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/pman369/in_my_solitude.git
    cd in_my_solitude
    npm install
    ```
