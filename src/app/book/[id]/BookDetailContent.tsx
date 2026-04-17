@@ -67,11 +67,10 @@ export default function BookDetailContent({ book, related }: Props) {
     if (!book.file_url) return;
     setReadLoading(true);
     try {
-      const res = await fetch(`/api/storage/signed-url?file=${encodeURIComponent(book.file_url)}`);
-      if (res.ok) {
-        const { url } = await res.json() as { url: string };
-        window.open(url, "_blank", "noopener,noreferrer");
-      }
+      // Use the proxy route — it streams bytes with correct headers so
+      // Chrome's built-in PDF viewer renders without "Content unavailable".
+      const readUrl = `/api/storage/read?file=${encodeURIComponent(book.file_url)}`;
+      window.open(readUrl, "_blank", "noopener,noreferrer");
     } finally {
       setReadLoading(false);
     }

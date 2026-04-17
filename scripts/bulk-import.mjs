@@ -296,11 +296,15 @@ async function main() {
     const catId   = catBySlug[catRaw] || catByName[catRaw] || null;
     if (catRaw && !catId) rowErrors.push(`unknown category "${row.category}" (use slug or name)`);
 
-    // Cover file lookup
-    const coverStem = row.cover_file?.trim() || slugify(title || "book");
-    const coverPath = await findFile(coversDir, coverStem,
-      ["jpg", "jpeg", "png", "webp", "avif"]);
-    if (!coverPath) rowErrors.push(`cover file not found for stem "${coverStem}" in ${coversDir}`);
+    // Cover file lookup (optional — papers may not have covers)
+    const coverStem = row.cover_file?.trim() || (row.cover_file !== undefined ? null : slugify(title || "book"));
+    const coverPath = coverStem
+      ? await findFile(coversDir, coverStem, ["jpg", "jpeg", "png", "webp", "avif"])
+      : null;
+    // Only error if a cover_file was explicitly specified but not found
+    if (row.cover_file?.trim() && !coverPath) {
+      rowErrors.push(`cover file not found: "${row.cover_file.trim()}" in ${coversDir}`);
+    }
 
     // PDF file lookup
     const pdfStem = row.pdf_file?.trim() || slugify(title || "book");
@@ -327,7 +331,6 @@ async function main() {
       for (const e of rowErrors) dim(`  ↳ ${e}`);
     } else {
       // Get file sizes
-      const coverStat = await stat(coverPath);
       const pdfStat   = await stat(pdfPath);
       validated.push({
         lineNo,
@@ -343,8 +346,8 @@ async function main() {
         is_published:  isPublished,
         download_enabled: true,
         coverPath,
-        coverName:    basename(coverPath),
-        coverSize:    coverStat.size,
+        coverName:    coverPath ? basename(coverPath) : null,
+        coverSize:    coverPath ? (await stat(coverPath)).size : 0,
         pdfPath,
         pdfName:      basename(pdfPath),
         pdfSize:      pdfStat.size,
@@ -379,7 +382,7 @@ async function main() {
     log("");
     for (const r of validated) {
       ok(`[DRY RUN] ${r.title}`);
-      dim(`  ✦ Cover: ${r.coverName} (${fmtBytes(r.coverSize)})`);
+      dim(`  ✦ Cover: ${r.coverName ? `${r.coverName} (${fmtBytes(r.coverSize)})` : '(none — will be null)'}`);
       dim(`  ✦ PDF:   ${r.pdfName}   (${fmtBytes(r.pdfSize)})`);
       dim(`  ✦ Category: ${r.category_id ?? "(none)"} | Restricted: ${r.is_restricted}`);
     }
@@ -419,21 +422,21 @@ async function main() {
 
     try {
       // ── Step 1: Insert book record ─────────────────────────────────────────
+      // Only include columns confirmed to exist in the live DB schema.
+      // (download_enabled, language, publish_date etc. are in the type file
+      //  but have not been migrated to the actual database yet.)
       const insertPayload = {
-        title:            book.title,
-        author:           book.author,
-        category_id:      book.category_id,
-        description:      book.description,
-        curator_note:     book.curator_note,
-        language:         book.language,
-        publish_date:     book.publish_date,
-        tags:             book.tags,
-        is_restricted:    book.is_restricted,
-        is_published:     book.is_published,
-        download_enabled: book.download_enabled,
-        added_date:       new Date().toISOString(),
-        views:            0,
-        downloads:        0,
+        title:         book.title,
+        author:        book.author,
+        category_id:   book.category_id,
+        description:   book.description,
+        curator_note:  book.curator_note,
+        tags:          book.tags,
+        is_restricted: book.is_restricted,
+        is_published:  book.is_published,
+        added_date:    new Date().toISOString(),
+        views:         0,
+        downloads:     0,
       };
 
       // eslint-disable-next-line no-undef
@@ -446,23 +449,26 @@ async function main() {
       if (insertErr) throw new Error(`DB insert: ${insertErr.message} | ${insertErr.details ?? ""}`);
       bookId = inserted.id;
 
-      // ── Step 2: Upload cover ───────────────────────────────────────────────
-      const coverExt   = extname(book.coverPath).slice(1) || "jpg";
-      const coverKey   = `covers/${bookId}.${coverExt}`;
-      const coverBytes = await readFileBytes(book.coverPath);
+      // ── Step 2: Upload cover (optional) ──────────────────────────────────
+      let coverUrl = null;
+      if (book.coverPath) {
+        const coverExt   = extname(book.coverPath).slice(1) || "jpg";
+        const coverKey   = `covers/${bookId}.${coverExt}`;
+        const coverBytes = await readFileBytes(book.coverPath);
 
-      const { error: coverErr } = await supabase.storage
-        .from("book-covers")
-        .upload(coverKey, coverBytes, {
-          contentType: `image/${coverExt === "jpg" ? "jpeg" : coverExt}`,
-          upsert: true,
-        });
+        const { error: coverErr } = await supabase.storage
+          .from("book-covers")
+          .upload(coverKey, coverBytes, {
+            contentType: `image/${coverExt === "jpg" ? "jpeg" : coverExt}`,
+            upsert: true,
+          });
 
-      if (coverErr) throw new Error(`Cover upload: ${coverErr.message}`);
+        if (coverErr) throw new Error(`Cover upload: ${coverErr.message}`);
 
-      const { data: { publicUrl: coverUrl } } = supabase.storage
-        .from("book-covers")
-        .getPublicUrl(coverKey);
+        coverUrl = supabase.storage
+          .from("book-covers")
+          .getPublicUrl(coverKey).data.publicUrl;
+      }
 
       // ── Step 3: Upload PDF ─────────────────────────────────────────────────
       const pdfBucket = book.is_restricted ? "vault-files" : "book-files";
@@ -484,9 +490,8 @@ async function main() {
       const { error: updateErr } = await supabase
         .from("books")
         .update({
-          cover_url:       coverUrl,
-          file_url:        fileUrl,
-          file_size_bytes: book.pdfSize,
+          cover_url: coverUrl,
+          file_url:  fileUrl,
         })
         .eq("id", bookId);
 
