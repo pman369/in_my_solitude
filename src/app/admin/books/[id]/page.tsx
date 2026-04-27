@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { FileDropZone } from "@/components/admin/FileDropZone";
+import { logActivity } from "@/lib/admin/activity-logger";
 
 export default function EditBookPage() {
   const router = useRouter();
@@ -193,13 +194,11 @@ export default function EditBookPage() {
       if (updateError) throw updateError;
 
       // 4. Log activity
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from("admin_activity_log") as any).insert({
-        admin_id: user.id,
+      await logActivity({
         action: "book_edited",
-        target_type: "book",
-        target_id: id as string,
-        metadata: { title: form.title }
+        targetType: "book",
+        targetId: id as string,
+        details: { title: form.title }
       });
 
       router.push(`/admin/books?updated=true`);

@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { logActivity } from "@/lib/admin/activity-logger";
 import { useUser } from "@/hooks/useUser";
 import { motion } from "framer-motion";
 
@@ -87,12 +88,11 @@ export default function VaultQueuePage() {
       if (error) throw error;
 
       // Log activity
-      await (supabase as any).from("admin_activity_log").insert({
-        admin_id: user.id,
+      await logActivity({
         action: `vault_request_${decision}`,
-        target_type: "vault_request",
-        target_id: requestId,
-        metadata: { decision, admin_note: adminNote }
+        targetType: "vault_request",
+        targetId: requestId,
+        details: { decision, admin_note: adminNote }
       });
 
       // Remove from local state

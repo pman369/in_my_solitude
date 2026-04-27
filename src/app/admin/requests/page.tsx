@@ -18,6 +18,7 @@ import {
   LucideIcon
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { logActivity } from "@/lib/admin/activity-logger";
 import { useUser } from "@/hooks/useUser";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -137,13 +138,11 @@ export default function RequestDeskAdminPage() {
       if (error) throw error;
 
       // Log activity
-      // @ts-expect-error - bypassing generated types
-      await supabase.from("admin_activity_log").insert({
-        admin_id: user.id,
+      await logActivity({
         action: `${table === 'book_requests' ? 'request' : 'donation'}_${newStatus}`,
-        target_type: table === 'book_requests' ? 'book_request' : 'book_donation',
-        target_id: id,
-        metadata: { status: newStatus, admin_note: adminNote }
+        targetType: table === 'book_requests' ? 'book_request' : 'book_donation',
+        targetId: id,
+        details: { status: newStatus, admin_note: adminNote }
       });
 
       // Update local state

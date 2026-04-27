@@ -24,9 +24,9 @@ interface LogEntry {
   target_id: string;
   target_type: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  metadata: Record<string, any>;
-  performed_at: string;
-  admin_id: string;
+  details: Record<string, any>;
+  created_at: string;
+  user_id: string;
   user_profiles: { display_name: string };
 }
 
@@ -42,19 +42,21 @@ export default function AdminLedgerPage() {
   const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from("admin_activity_log")
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      let query = (supabase
+        .from("activity_logs") as any)
         .select(`
           *,
-          user_profiles!admin_id(display_name)
+          user_profiles!user_id(display_name)
         `, { count: "exact" });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       if (filter !== "all") {
         query = query.ilike("action", `%${filter}%`);
       }
 
       const { data, count, error } = await query
-        .order("performed_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (error) throw error;
@@ -161,7 +163,7 @@ export default function AdminLedgerPage() {
                         <td className="px-6 py-5">
                           <div className="space-y-1">
                             <div className="text-xs text-[#F0EDE6] font-medium">
-                              {log.metadata?.title || log.metadata?.new_role || "N/A"}
+                              {log.details?.title || log.details?.new_role || "N/A"}
                             </div>
                             <div className="text-[10px] text-[#9A9088] flex items-center gap-1.5 font-mono">
                               <Hash className="w-3 h-3 opacity-50" /> {log.target_id?.substring(0, 8)}
@@ -171,7 +173,7 @@ export default function AdminLedgerPage() {
                         <td className="px-6 py-5 text-left">
                           <div className="flex items-center gap-2 text-xs text-[#9A9088]">
                             <Clock className="w-3.5 h-3.5 opacity-50" />
-                            {new Date(log.performed_at).toLocaleString()}
+                            {new Date(log.created_at).toLocaleString()}
                           </div>
                         </td>
                       </motion.tr>

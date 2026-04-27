@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { FileDropZone } from "@/components/admin/FileDropZone";
+import { logActivity } from "@/lib/admin/activity-logger";
 
 export default function NewBookPage() {
   const router = useRouter();
@@ -164,12 +165,11 @@ export default function NewBookPage() {
 
       // 5. Log activity (best-effort — don't let a log failure block the upload)
       try {
-        await (supabase.from("admin_activity_log") as any).insert({
-          admin_id:    user.id,
+        await logActivity({
           action:      "book_uploaded",
-          target_type: "book",
-          target_id:   book.id,
-          metadata:    { title: form.title, author: form.author }
+          targetType:  "book",
+          targetId:    book.id,
+          details:     { title: form.title, author: form.author }
         });
       } catch {
         // Activity log failure is non-fatal

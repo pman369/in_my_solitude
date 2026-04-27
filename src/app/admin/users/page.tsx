@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logActivity } from "@/lib/admin/activity-logger";
 import { useUser } from "@/hooks/useUser";
 
 type Profile = {
@@ -95,12 +96,11 @@ export default function UserManagementPage() {
       if (!error) {
         setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
         // Log activity
-        await (supabase as any).from("admin_activity_log").insert({
-          admin_id: currentUser.id,
+        await logActivity({
           action: "user_role_updated",
-          target_type: "user",
-          target_id: userId,
-          metadata: { new_role: newRole }
+          targetType: "user",
+          targetId: userId,
+          details: { new_role: newRole }
         });
       }
     }

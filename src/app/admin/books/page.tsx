@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { logActivity } from "@/lib/admin/activity-logger";
 import { useUser } from "@/hooks/useUser";
 
 type Book = {
@@ -109,11 +110,10 @@ export default function BookManagementPage() {
     if (!error) {
       setBooks(books.map(b => b.id === bookId ? { ...b, is_published: !currentState } : b));
       // Log activity
-      await (supabase.from("admin_activity_log") as any).insert({
-        admin_id: user.id,
+      await logActivity({
         action: currentState ? "book_unpublished" : "book_published",
-        target_type: "book",
-        target_id: bookId
+        targetType: "book",
+        targetId: bookId
       });
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -130,11 +130,10 @@ export default function BookManagementPage() {
     if (!error) {
       setBooks(books.map(b => b.id === bookId ? { ...b, download_enabled: !currentState } : b));
       // Log activity
-      await (supabase.from("admin_activity_log") as any).insert({
-        admin_id: user.id,
+      await logActivity({
         action: currentState ? "download_disabled" : "download_enabled",
-        target_type: "book",
-        target_id: bookId
+        targetType: "book",
+        targetId: bookId
       });
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -151,11 +150,10 @@ export default function BookManagementPage() {
       const { error } = await (supabase.from("books") as any).delete().eq("id", bookId);
       if (!error) {
         setBooks(books.filter(b => b.id !== bookId));
-        await (supabase.from("admin_activity_log") as any).insert({
-          admin_id: user.id,
+        await logActivity({
           action: "book_deleted",
-          target_type: "book",
-          target_id: bookId
+          targetType: "book",
+          targetId: bookId
         });
       }
       /* eslint-enable @typescript-eslint/no-explicit-any */

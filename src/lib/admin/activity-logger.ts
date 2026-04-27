@@ -7,23 +7,36 @@ export type ActivityAction =
   | "book_delete" 
   | "book_publish" 
   | "book_hide"
+  | "book_uploaded"
+  | "book_edited"
+  | "book_deleted"
+  | "book_published"
+  | "book_unpublished"
+  | "download_enabled"
+  | "download_disabled"
   | "vault_approve" 
   | "vault_decline"
+  | "vault_request_approved"
+  | "vault_request_declined"
   | "request_fulfill"
   | "request_decline"
+  | "request_approved"
+  | "request_declined"
   | "donation_accept"
-  | "donation_decline";
+  | "donation_decline"
+  | "donation_approved"
+  | "donation_declined"
+  | "user_role_updated";
 
 interface LogParams {
-  action: ActivityAction;
+  action: ActivityAction | string;
   targetId?: string;
-  targetType?: "book" | "vault_request" | "book_request" | "donation";
+  targetType?: "book" | "vault_request" | "book_request" | "donation" | "user" | "book_donation";
   details?: Record<string, unknown>;
 }
 
 /**
- * Logs an administrative action to the admin_activity_log table.
- * Note: Requires the admin_activity_log table to exist in Supabase.
+ * Logs an administrative action to the activity_logs table.
  */
 export async function logActivity({ action, targetId, targetType, details }: LogParams) {
   const supabase = createClient();
@@ -32,7 +45,7 @@ export async function logActivity({ action, targetId, targetType, details }: Log
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await (supabase.from("activity_logs") as any).insert({ // eslint-disable-line @typescript-eslint/no-explicit-any
+    await supabase.from("activity_logs").insert({
       user_id: user.id,
       action,
       target_id: targetId,
