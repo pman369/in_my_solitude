@@ -97,7 +97,7 @@ export default function MyRequestsTab({ userId }: Props) {
         ) : (
           <div className="space-y-3">
             {requests.map((req) => {
-              const sc = REQUEST_STATUS[req.status] ?? REQUEST_STATUS.open;
+              const sc = REQUEST_STATUS[req.status || 'open'] ?? REQUEST_STATUS.open;
               const StatusIcon = sc.icon;
               return (
                 <div key={req.id} className="rounded border p-4" style={{ background: "#141414", borderColor: "#2A2A2A" }}>
@@ -126,7 +126,7 @@ export default function MyRequestsTab({ userId }: Props) {
                     </div>
                   )}
                   <p className="text-xs mt-2" style={{ color: "rgba(154,144,136,0.4)" }}>
-                    {new Date(req.requested_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    {req.requested_at ? new Date(req.requested_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Date unknown"}
                   </p>
                 </div>
               );
@@ -139,7 +139,7 @@ export default function MyRequestsTab({ userId }: Props) {
         ) : (
           <div className="space-y-3">
             {donations.map((don) => {
-              const sc = DONATION_STATUS[don.status] ?? DONATION_STATUS.under_review;
+              const sc = DONATION_STATUS[don.status || 'under_review'] ?? DONATION_STATUS.under_review;
               const StatusIcon = sc.icon;
               return (
                 <div key={don.id} className="rounded border p-4" style={{ background: "#141414", borderColor: "#2A2A2A" }}>
@@ -162,7 +162,7 @@ export default function MyRequestsTab({ userId }: Props) {
                     </div>
                   </div>
                   <p className="text-xs mt-2" style={{ color: "rgba(154,144,136,0.4)" }}>
-                    Submitted {new Date(don.submitted_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    Submitted {don.submitted_at ? new Date(don.submitted_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Date unknown"}
                   </p>
                 </div>
               );

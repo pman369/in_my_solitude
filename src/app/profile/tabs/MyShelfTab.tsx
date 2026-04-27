@@ -213,7 +213,7 @@ function ShelfEntry({
       </div>
 
       {/* Notes drawer */}
-      {notesOpen && (
+      {notesOpen && entry.book_id && (
         <NotesDrawer userId={userId} bookId={entry.book_id} bookTitle={book?.title ?? ""} />
       )}
     </div>

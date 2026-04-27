@@ -168,9 +168,9 @@ function useSave(userId: string) {
 /** Applies reading/accessibility preferences as data-attributes on <html> */
 function applyPrefsToDOM(prefs: Partial<UserProfile>) {
   const html = document.documentElement;
-  if (prefs.font_family  !== undefined) html.dataset.fontFamily  = prefs.font_family;
-  if (prefs.font_size    !== undefined) html.dataset.fontSize    = prefs.font_size;
-  if (prefs.line_spacing !== undefined) html.dataset.lineSpacing = prefs.line_spacing;
+  if (prefs.font_family  !== undefined) html.dataset.fontFamily  = prefs.font_family || "";
+  if (prefs.font_size    !== undefined) html.dataset.fontSize    = prefs.font_size || "";
+  if (prefs.line_spacing !== undefined) html.dataset.lineSpacing = prefs.line_spacing || "";
   if (prefs.reduce_motion !== undefined) html.dataset.reduceMotion = prefs.reduce_motion ? "1" : "0";
   if (prefs.high_contrast !== undefined) html.dataset.highContrast = prefs.high_contrast ? "1" : "0";
 }

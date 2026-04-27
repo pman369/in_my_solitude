@@ -51,8 +51,8 @@ export default function RequestDeskManagement() {
       ...(requests as any[] || []).map((r: any) => ({ ...r, type: "request" as const })),
       ...(donations as any[] || []).map((d: any) => ({ ...d, type: "donation" as const }))
     ].sort((a, b) => {
-      const dateA = new Date(a.type === 'request' ? a.requested_at : a.submitted_at).getTime();
-      const dateB = new Date(b.type === 'request' ? b.requested_at : b.submitted_at).getTime();
+      const dateA = new Date((a.type === 'request' ? a.requested_at : a.submitted_at) || 0).getTime();
+      const dateB = new Date((b.type === 'request' ? b.requested_at : b.submitted_at) || 0).getTime();
       return dateB - dateA;
     });
 
@@ -75,8 +75,7 @@ export default function RequestDeskManagement() {
     setProcessingId(id);
     const table = type === 'request' ? 'book_requests' : 'book_donations';
     
-    // @ts-expect-error - Dynamic table name
-    const { error } = await supabase.from(table).update({ status }).eq("id", id);
+    const { error } = await (supabase.from(table) as any).update({ status }).eq("id", id);
 
     if (!error) {
       const item = items.find(i => i.id === id);
@@ -155,7 +154,7 @@ export default function RequestDeskManagement() {
                     </div>
                     <div className="text-[10px] text-[#9A9088] flex items-center gap-1.5 font-mono">
                       <Calendar className="w-3 h-3" />
-                      {new Date(item.type === 'request' ? item.requested_at : item.submitted_at).toLocaleDateString()}
+                      {new Date((item.type === 'request' ? item.requested_at : item.submitted_at) || 0).toLocaleDateString()}
                     </div>
                   </div>
 
@@ -224,7 +223,7 @@ export default function RequestDeskManagement() {
                     <div className="flex items-center justify-between">
                        <div className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-[#9A9088]">
                          <Info className="w-3.5 h-3.5" />
-                         {item.status.replace('_', ' ')}
+                         {(item.status || "under_review").replace('_', ' ')}
                        </div>
                        <div className="text-[10px] font-mono text-[#9A9088] opacity-50">#ID-{item.id.substring(0,6)}</div>
                     </div>

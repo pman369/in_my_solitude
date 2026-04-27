@@ -64,16 +64,17 @@ export default function BookManagement() {
     fetchBooks();
   }, [fetchCategories, fetchBooks]);
 
-  async function togglePublished(id: string, current: boolean) {
+  async function togglePublished(id: string, current: boolean | null) {
+    const nextValue = !current;
     const { error } = await (supabase
       .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .update({ is_published: !current })
+      .update({ is_published: nextValue })
       .eq("id", id);
     
     if (!error) {
-      setBooks(books.map(b => b.id === id ? { ...b, is_published: !current } : b));
+      setBooks(books.map(b => b.id === id ? { ...b, is_published: nextValue } : b));
       await logActivity({
-        action: !current ? "book_publish" : "book_hide",
+        action: nextValue ? "book_publish" : "book_hide",
         targetId: id,
         targetType: "book",
         details: { title: books.find(b => b.id === id)?.title }

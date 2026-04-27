@@ -147,9 +147,8 @@ export default function UploadContent() {
       const fileUrl = `${bucketName}/${bookFolder}/${bookFileName}`;
 
       // 3. Create DB Entry
-      const { error: dbError } = await supabase
-        .from("books")
-        // @ts-expect-error - Ignore never type inference
+      const { error: dbError } = await (supabase
+        .from("books") as any)
         .insert({
           title,
           author: author || null,

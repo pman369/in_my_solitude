@@ -42,7 +42,10 @@ export default function MyVaultTab({ userId }: Props) {
           .select("id, title, author, cover_url")
           .in("id", bookIds) as { data: Pick<Book, "id" | "title" | "author" | "cover_url">[] | null };
         const bookMap = Object.fromEntries((books ?? []).map(b => [b.id, b]));
-        setRequests(rows.map(r => ({ ...r, books: bookMap[r.book_id] ?? null } as RequestWithBook)));
+        setRequests(rows.map(r => ({ 
+          ...r, 
+          books: r.book_id && bookMap[r.book_id] ? bookMap[r.book_id] : null 
+        } as RequestWithBook)));
         setLoading(false);
       });
   }, [supabase, userId]);
@@ -83,7 +86,7 @@ export default function MyVaultTab({ userId }: Props) {
       </p>
 
       {requests.map((req) => {
-        const sc = STATUS_CONFIG[req.status] ?? STATUS_CONFIG.pending;
+        const sc = STATUS_CONFIG[req.status || 'pending'] ?? STATUS_CONFIG.pending;
         const StatusIcon = sc.icon;
         return (
           <div
@@ -131,7 +134,7 @@ export default function MyVaultTab({ userId }: Props) {
 
                 {/* Dates */}
                 <p className="text-xs mt-1" style={{ color: "rgba(154,144,136,0.5)" }}>
-                  Requested {new Date(req.requested_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  Requested {req.requested_at ? new Date(req.requested_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Date unknown"}
                   {req.reviewed_at && ` · Reviewed ${new Date(req.reviewed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
                 </p>
               </div>

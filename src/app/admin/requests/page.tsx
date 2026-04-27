@@ -64,10 +64,10 @@ export default function RequestDeskAdminPage() {
     let query = supabase
       .from("book_requests")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("requested_at", { ascending: false });
 
     if (search) {
-      query = query.ilike("title", `%${search}%`);
+      query = query.ilike("book_title", `%${search}%`);
     }
 
     if (statusFilter !== "all") {
@@ -75,7 +75,7 @@ export default function RequestDeskAdminPage() {
     }
 
     const { data, error } = await query;
-    if (!error) setBookRequests(data as BookRequest[]);
+    if (!error) setBookRequests((data as unknown as BookRequest[]));
   }, [supabase, search, statusFilter]);
 
   const fetchDonations = useCallback(async () => {
@@ -85,10 +85,10 @@ export default function RequestDeskAdminPage() {
         *,
         categories(name)
       `)
-      .order("created_at", { ascending: false });
+      .order("submitted_at", { ascending: false });
 
     if (search) {
-      query = query.ilike("title", `%${search}%`);
+      query = query.ilike("book_title", `%${search}%`);
     }
 
     if (statusFilter !== "all") {
@@ -96,7 +96,7 @@ export default function RequestDeskAdminPage() {
     }
 
     const { data, error } = await query;
-    if (!error) setDonations(data as Donation[]);
+    if (!error) setDonations((data as unknown as Donation[]));
   }, [supabase, search, statusFilter]);
 
   const fetchData = useCallback(async () => {
@@ -126,12 +126,10 @@ export default function RequestDeskAdminPage() {
       };
 
       if (table === 'book_requests') {
-        // @ts-expect-error - bypassing generated types
-        const res = await supabase.from('book_requests').update(updateData).eq("id", id);
+        const res = await (supabase.from('book_requests') as any).update(updateData).eq("id", id);
         error = res.error;
       } else {
-        // @ts-expect-error - bypassing generated types
-        const res = await supabase.from('book_donations').update(updateData).eq("id", id);
+        const res = await (supabase.from('book_donations') as any).update(updateData).eq("id", id);
         error = res.error;
       }
 

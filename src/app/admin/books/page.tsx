@@ -26,13 +26,13 @@ type Book = {
   title: string;
   author: string | null;
   category_id: string | null;
-  is_published: boolean;
-  is_restricted: boolean;
-  download_enabled: boolean;
-  added_date: string;
-  views: number;
-  downloads: number;
-  categories?: { name: string };
+  is_published: boolean | null;
+  is_restricted: boolean | null;
+  download_enabled: boolean | null;
+  added_date: string | null;
+  views: number | null;
+  downloads: number | null;
+  categories?: { name: string } | null;
 };
 
 export default function BookManagementPage() {
@@ -78,7 +78,7 @@ export default function BookManagementPage() {
         .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (error) throw error;
-      setBooks(data || []);
+      setBooks((data as unknown as Book[]) || []);
       setTotalCount(count || 0);
     } catch (err) {
       console.error("Error fetching books:", err);
@@ -99,7 +99,7 @@ export default function BookManagementPage() {
     fetchCategories();
   }, [supabase]);
 
-  async function togglePublish(bookId: string, currentState: boolean) {
+  async function togglePublish(bookId: string, currentState: boolean | null) {
     if (!user) return;
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const { error } = await (supabase
@@ -119,7 +119,7 @@ export default function BookManagementPage() {
     /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
-  async function toggleDownload(bookId: string, currentState: boolean) {
+  async function toggleDownload(bookId: string, currentState: boolean | null) {
     if (!user) return;
     /* eslint-disable @typescript-eslint/no-explicit-any */
     const { error } = await (supabase

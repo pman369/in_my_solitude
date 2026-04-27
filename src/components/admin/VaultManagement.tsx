@@ -168,7 +168,7 @@ export default function VaultManagement() {
                         </div>
                       </div>
                       <div className="text-[10px] text-[#9A9088] font-mono">
-                        {new Date(req.requested_at).toLocaleDateString()}
+                        {req.requested_at ? new Date(req.requested_at).toLocaleDateString() : "Date unknown"}
                       </div>
                     </div>
 

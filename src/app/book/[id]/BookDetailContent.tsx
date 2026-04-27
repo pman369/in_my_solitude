@@ -27,12 +27,12 @@ interface Book {
   description: string | null;
   cover_url: string | null;
   file_url: string | null;
-  is_restricted: boolean;
+  is_restricted: boolean | null;
   tags: string[] | null;
   added_date: string | null;
   curator_note: string | null;
-  views: number;
-  downloads: number;
+  views: number | null;
+  downloads: number | null;
   categories: Category | null;
 }
 
@@ -210,13 +210,14 @@ export default function BookDetailContent({ book, related }: Props) {
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5" />
-                {book.views.toLocaleString()} views
+               <Eye className="w-3.5 h-3.5" />
+               {(book.views ?? 0).toLocaleString()} views
               </span>
               <span className="flex items-center gap-1.5">
-                <Download className="w-3.5 h-3.5" />
-                {book.downloads.toLocaleString()} downloads
+               <Download className="w-3.5 h-3.5" />
+               {(book.downloads ?? 0).toLocaleString()} downloads
               </span>
+
             </div>
 
             {/* Actions */}
