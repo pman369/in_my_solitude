@@ -27,7 +27,7 @@ describe('Admin Activity Logger', () => {
 
     const supabase = createClient();
     expect(supabase.auth.getUser).toHaveBeenCalled();
-    expect(supabase.from).toHaveBeenCalledWith('activity_logs');
+    expect(supabase.from).toHaveBeenCalledWith('admin_activity_log');
   });
 
   it('should handle missing user gracefully', async () => {
@@ -38,6 +38,6 @@ describe('Admin Activity Logger', () => {
     await logActivity({ action: 'book_delete', targetId: '123' });
     
     // Should return early without calling .from()
-    expect(supabase.from).not.toHaveBeenCalledWith('activity_logs');
+    expect(supabase.from).not.toHaveBeenCalledWith('admin_activity_log');
   });
 });

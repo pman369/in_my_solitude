@@ -75,23 +75,40 @@ export function useUser(): UseUserReturn {
   useEffect(() => {
     let cancelled = false;
 
-    // 1. Resolve the current session immediately (avoids a flash of signed-out state)
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (cancelled) return;
-      setUser(user);
-      if (user) {
-        // First fetch the profile — it's needed for most things
-        const p = await fetchProfile(user.id);
-        // Only hit admin_profiles if profile doesn't already say admin
-        const profileIsAdmin = p?.role === "admin" || p?.role === "sub_admin";
-        const isAdm = profileIsAdmin ? true : await checkAdminTable(user.id);
+    async function initializeAuth() {
+      try {
+        // 1. Resolve the current session immediately
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (cancelled) return;
+        setUser(user);
+
+        if (user) {
+          try {
+            // First fetch the profile — it's needed for most things
+            const p = await fetchProfile(user.id);
+            // Only hit admin_profiles if profile doesn't already say admin
+            const profileIsAdmin = p?.role === "admin" || p?.role === "sub_admin";
+            const isAdm = profileIsAdmin ? true : await checkAdminTable(user.id);
+            
+            if (!cancelled) {
+              setProfile(p);
+              setIsAdminTable(isAdm);
+            }
+          } catch (profileError) {
+            console.error("[useUser] Error fetching profile data:", profileError);
+          }
+        }
+      } catch (authError) {
+        console.error("[useUser] Auth initialization error:", authError);
+      } finally {
         if (!cancelled) {
-          setProfile(p);
-          setIsAdminTable(isAdm);
+          setLoading(false);
         }
       }
-      setLoading(false);
-    });
+    }
+
+    initializeAuth();
 
     // 2. Subscribe to future auth changes (sign-in, sign-out, token refresh, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -101,20 +118,25 @@ export function useUser(): UseUserReturn {
         setUser(nextUser);
 
         if (nextUser) {
-          const p = await fetchProfile(nextUser.id);
-          const profileIsAdmin = p?.role === "admin" || p?.role === "sub_admin";
-          const isAdm = profileIsAdmin ? true : await checkAdminTable(nextUser.id);
-          if (!cancelled) {
-            setProfile(p);
-            setIsAdminTable(isAdm);
+          try {
+            const p = await fetchProfile(nextUser.id);
+            const profileIsAdmin = p?.role === "admin" || p?.role === "sub_admin";
+            const isAdm = profileIsAdmin ? true : await checkAdminTable(nextUser.id);
+            if (!cancelled) {
+              setProfile(p);
+              setIsAdminTable(isAdm);
+            }
+          } catch (profileError) {
+            console.error("[useUser] Error updating profile on auth change:", profileError);
           }
         } else {
           setProfile(null);
           setIsAdminTable(false);
         }
 
-        // Only keep loading true until the very first resolution
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     );
 

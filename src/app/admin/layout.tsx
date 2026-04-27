@@ -44,8 +44,8 @@ export default function AdminLayout({
         { count: donCount }
       ] = await Promise.all([
         supabase.from("vault_access_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("book_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("book_donations").select("*", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("book_requests").select("*", { count: "exact", head: true }).eq("status", "open"),
+        supabase.from("book_donations").select("*", { count: "exact", head: true }).eq("status", "under_review"),
       ]);
 
       setStats({

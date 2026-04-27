@@ -35,8 +35,8 @@ export default function AdminOverview() {
       ] = await Promise.all([
         supabase.from("books").select("*", { count: "exact", head: true }),
         supabase.from("vault_access_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("book_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("book_donations").select("*", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("book_requests").select("*", { count: "exact", head: true }).eq("status", "open"),
+        supabase.from("book_donations").select("*", { count: "exact", head: true }).eq("status", "under_review"),
       ]);
 
       setStats({

@@ -22,8 +22,8 @@ interface LogParams {
 }
 
 /**
- * Logs an administrative action to the activity_logs table.
- * Note: Requires the activity_logs table to exist in Supabase.
+ * Logs an administrative action to the admin_activity_log table.
+ * Note: Requires the admin_activity_log table to exist in Supabase.
  */
 export async function logActivity({ action, targetId, targetType, details }: LogParams) {
   const supabase = createClient();
