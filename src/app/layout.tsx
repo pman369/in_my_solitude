@@ -5,6 +5,7 @@ import "@/styles/librarian-chat.css";
 import { PreferencesProvider } from "@/components/providers/PreferencesProvider";
 import { LibrarianChatProvider } from "@/components/chat/LibrarianProvider";
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
+import Providers from "@/components/providers/Providers";
 
 // next/font: self-hosted, inlined CSS, zero layout shift, no external network request
 const inter = Inter({
@@ -48,11 +49,13 @@ export default function RootLayout({
         <a href="#main-content" className="skip-to-content">
           Skip to content
         </a>
-        <PreferencesProvider>
-          <LibrarianChatProvider>
-            <LayoutWrapper>{children}</LayoutWrapper>
-          </LibrarianChatProvider>
-        </PreferencesProvider>
+        <Providers>
+          <PreferencesProvider>
+            <LibrarianChatProvider>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </LibrarianChatProvider>
+          </PreferencesProvider>
+        </Providers>
       </body>
     </html>
   );

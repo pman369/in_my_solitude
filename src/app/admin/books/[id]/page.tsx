@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { FileDropZone } from "@/components/admin/FileDropZone";
+import { CoverGenerationHelper } from "@/components/admin/CoverGenerationHelper";
 import { logActivity } from "@/lib/admin/activity-logger";
 
 export default function EditBookPage() {
@@ -329,6 +330,7 @@ export default function EditBookPage() {
                   </span>
                 ))}
                 <input
+                  id="tags"
                   type="text"
                   value={tagInput}
                   onChange={e => setTagInput(e.target.value)}
@@ -383,23 +385,23 @@ export default function EditBookPage() {
             </div>
             
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Change Cover Image</label>
+              <label htmlFor="file-Cover Image" className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Change Cover Image</label>
               <FileDropZone
                 accept="image/*"
                 maxSizeMB={5}
                 onFileSelect={handleCoverSelect}
-                label="New Cover"
+                label="Cover Image"
                 preview={coverPreview}
               />
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Update Book PDF</label>
+              <label htmlFor="file-Book PDF" className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Update Book PDF</label>
               <FileDropZone
                 accept="application/pdf"
                 maxSizeMB={100}
                 onFileSelect={setPdfFile}
-                label="New PDF"
+                label="Book PDF"
                 fileName={pdfFile?.name || (form.file_url ? "Existing PDF preserved" : undefined)}
               />
             </div>
@@ -465,6 +467,8 @@ export default function EditBookPage() {
                </div>
             </div>
           </div>
+
+          <CoverGenerationHelper />
 
           {/* Form Error */}
           {error && (

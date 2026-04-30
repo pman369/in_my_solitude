@@ -10,6 +10,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { useReadingList } from "@/hooks/useReadingList";
 import { useLibrarianChat } from "@/hooks/useLibrarianChat";
+import { BookCover } from "@/components/ui/BookCover";
 
 /* Types -------------------------------------------------------------------- */
 interface Category {
@@ -148,23 +149,13 @@ export default function BookDetailContent({ book, related }: Props) {
                 boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
               }}
             >
-              {book.cover_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={book.cover_url}
-                  alt={`Cover of ${book.title}`}
-                  fetchPriority="high"
-                  loading="eager"
-                  decoding="sync"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="font-heading text-5xl" style={{ color: "rgba(201,168,76,0.2)" }}>
-                    {book.title[0]?.toUpperCase()}
-                  </span>
-                </div>
-              )}
+              <BookCover 
+                title={book.title}
+                author={book.author}
+                coverUrl={book.cover_url}
+                categorySlug={book.categories?.slug}
+                isRestricted={book.is_restricted ?? false}
+              />
             </div>
           </motion.div>
 

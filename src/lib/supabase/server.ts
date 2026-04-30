@@ -9,6 +9,16 @@ export async function createClient() {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+
+    if (isDevelopment && !isBuild) {
+      throw new Error(
+        "Supabase environment variables are missing. " +
+        "Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in .env.local"
+      );
+    }
+
     return createServerClient<Database>(
       "https://placeholder-url.supabase.co",
       "placeholder-key",

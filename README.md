@@ -3,7 +3,7 @@
 A free, community-driven archive for awakening knowledge. Built in solitude, offered in solidarity. This platform hosts over three hundred volumes across forbidden history, consciousness, and mysticism—without paywalls, ads, or algorithms.
 
 ## Technology Stack
-- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, React Server Components)
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router, React 19, Server Components)
 - **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL, Row Level Security)
 - **Styling:** Tailwind CSS & Framer Motion
 - **AI Integration:** Google Gemini API (Streaming "Librarian" Chat Agent)

@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
 import { FileDropZone } from "@/components/admin/FileDropZone";
+import { CoverGenerationHelper } from "@/components/admin/CoverGenerationHelper";
 import { logActivity } from "@/lib/admin/activity-logger";
 
 export default function NewBookPage() {
@@ -304,6 +305,7 @@ export default function NewBookPage() {
                   </span>
                 ))}
                 <input
+                  id="tags"
                   type="text"
                   value={tagInput}
                   onChange={e => setTagInput(e.target.value)}
@@ -361,7 +363,7 @@ export default function NewBookPage() {
             </div>
             
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Cover Image *</label>
+              <label htmlFor="file-Cover Image" className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Cover Image *</label>
               <FileDropZone
                 accept="image/*"
                 maxSizeMB={5}
@@ -372,7 +374,7 @@ export default function NewBookPage() {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Book PDF *</label>
+              <label htmlFor="file-Book PDF" className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Book PDF *</label>
               <FileDropZone
                 accept="application/pdf"
                 maxSizeMB={100}
@@ -443,6 +445,8 @@ export default function NewBookPage() {
                </div>
             </div>
           </div>
+
+          <CoverGenerationHelper />
 
           {/* Form Error */}
           {error && (
