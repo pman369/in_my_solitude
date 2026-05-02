@@ -422,21 +422,21 @@ async function main() {
 
     try {
       // ── Step 1: Insert book record ─────────────────────────────────────────
-      // Only include columns confirmed to exist in the live DB schema.
-      // (download_enabled, language, publish_date etc. are in the type file
-      //  but have not been migrated to the actual database yet.)
       const insertPayload = {
-        title:         book.title,
-        author:        book.author,
-        category_id:   book.category_id,
-        description:   book.description,
-        curator_note:  book.curator_note,
-        tags:          book.tags,
-        is_restricted: book.is_restricted,
-        is_published:  book.is_published,
-        added_date:    new Date().toISOString(),
-        views:         0,
-        downloads:     0,
+        title:            book.title,
+        author:           book.author,
+        category_id:      book.category_id,
+        description:      book.description,
+        curator_note:     book.curator_note,
+        tags:             book.tags,
+        is_restricted:    book.is_restricted,
+        is_published:     book.is_published,
+        added_date:       new Date().toISOString(),
+        views:            0,
+        downloads:        0,
+        download_enabled: book.download_enabled,
+        language:         book.language,
+        publish_date:     book.publish_date,
       };
 
       // eslint-disable-next-line no-undef
