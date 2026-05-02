@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -35,21 +34,21 @@ export default function RequestDeskManagement() {
     setLoading(true);
     
     // Fetch Requests
-    let reqQuery = (supabase.from("book_requests") as any).select("*"); // eslint-disable-line @typescript-eslint/no-explicit-any
+    let reqQuery = supabase.from("book_requests").select("*");
     if (activeTab === "pending") reqQuery = reqQuery.eq("status", "open");
     else reqQuery = reqQuery.neq("status", "open");
     const { data: requests } = await reqQuery;
 
     // Fetch Donations
-    let donQuery = (supabase.from("book_donations") as any).select("*"); // eslint-disable-line @typescript-eslint/no-explicit-any
+    let donQuery = supabase.from("book_donations").select("*");
     if (activeTab === "pending") donQuery = donQuery.eq("status", "under_review");
     else donQuery = donQuery.neq("status", "under_review");
     const { data: donations } = await donQuery;
 
     // Merge and Sort
     const allItems = [
-      ...(requests as any[] || []).map((r: any) => ({ ...r, type: "request" as const })),
-      ...(donations as any[] || []).map((d: any) => ({ ...d, type: "donation" as const }))
+      ...(requests || []).map((r) => ({ ...r, type: "request" as const } as BookRequest)),
+      ...(donations || []).map((d) => ({ ...d, type: "donation" as const } as Donation))
     ].sort((a, b) => {
       const dateA = new Date((a.type === 'request' ? a.requested_at : a.submitted_at) || 0).getTime();
       const dateB = new Date((b.type === 'request' ? b.requested_at : b.submitted_at) || 0).getTime();
@@ -57,10 +56,10 @@ export default function RequestDeskManagement() {
     });
 
     // Enriched with user info
-    const { data: profiles } = await (supabase.from("user_profiles") as any).select("id, display_name");
+    const { data: profiles } = await supabase.from("user_profiles").select("id, display_name");
     const enriched = allItems.map(item => ({
       ...item,
-      user: (profiles as any[])?.find(p => p.id === item.user_id) || { display_name: "Anonymous Seeker" } // eslint-disable-line @typescript-eslint/no-explicit-any
+      user: (profiles as Record<string, unknown>[])?.find(p => p.id === item.user_id) || { display_name: "Anonymous Seeker" }
     })) as DeskItem[];
 
     setItems(enriched);
@@ -75,13 +74,13 @@ export default function RequestDeskManagement() {
     setProcessingId(id);
     const table = type === 'request' ? 'book_requests' : 'book_donations';
     
-    const { error } = await (supabase.from(table) as any).update({ status }).eq("id", id);
+    const { error } = await supabase.from(table as never).update({ status } as never).eq("id", id);
 
     if (!error) {
       const item = items.find(i => i.id === id);
       setItems(items.filter(i => i.id !== id));
       
-      let logAction: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+      let logAction: string;
       if (type === 'request') {
         logAction = status === 'fulfilled' ? 'request_fulfill' : 'request_decline';
       } else {

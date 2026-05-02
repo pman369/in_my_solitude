@@ -145,7 +145,7 @@ export default function LibraryContent() {
             <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#C9A84C" }} />
           </div>
         ) : books.length === 0 ? (
-          <EmptyState query={query} onClear={clearFilters} />
+          <EmptyState onClear={clearFilters} />
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
@@ -220,7 +220,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             author={book.author}
             coverUrl={book.cover_url}
             categorySlug={book.categories?.slug}
-            isRestricted={book.is_restricted}
+            isRestricted={book.is_restricted ?? false}
           />
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <BookOpen className="w-6 h-6 text-[#C9A84C]" />
@@ -233,7 +233,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
   );
 }
 
-function EmptyState({ onClear }: { query?: string; onClear: () => void }) {
+function EmptyState({ onClear }: { onClear: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-32 text-center">
       <BookOpen className="w-10 h-10 mb-4 opacity-20" />

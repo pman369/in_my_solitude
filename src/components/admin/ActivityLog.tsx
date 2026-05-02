@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -16,7 +15,6 @@ import {
   Inbox,
   AlertTriangle
 } from "lucide-react";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from "@/lib/supabase/client";
 
 interface LogEntry {
@@ -24,7 +22,7 @@ interface LogEntry {
   action: string;
   target_id: string;
   target_type: string;
-  details: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  details: Record<string, unknown>;
   created_at: string;
   user_id: string;
   user?: { display_name: string };
@@ -38,7 +36,7 @@ export default function ActivityLog() {
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
-    let query = supabase // eslint-disable-line prefer-const
+    let query = supabase
       .from("activity_logs")
       .select(`*`)
       .order("created_at", { ascending: false })
@@ -52,10 +50,10 @@ export default function ActivityLog() {
     if (data) {
       // Get user profiles
       const { data: profiles } = await supabase.from("user_profiles").select("id, display_name");
-      const enriched = (data as any[]).map((log: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+      const enriched = (data as Record<string, unknown>[]).map((log) => ({
         ...log,
-        user: (profiles as any[])?.find(p => p.id === log.user_id) || { display_name: "Unknown Curator" } // eslint-disable-line @typescript-eslint/no-explicit-any
-      }));
+        user: (profiles as Record<string, unknown>[])?.find(p => p.id === log.user_id) || { display_name: "Unknown Curator" }
+      })) as LogEntry[];
       setLogs(enriched);
     }
     setLoading(false);
@@ -157,12 +155,12 @@ export default function ActivityLog() {
                         <td className="px-6 py-5">
                           <div className="space-y-1">
                             <div className="text-xs text-[#F0EDE6] font-medium">
-                              {log.details?.title || log.details?.bookTitle || "N/A"}
+                              {((log.details?.title as string) || (log.details?.bookTitle as string) || "N/A")}
                             </div>
                             <div className="text-[10px] text-[#9A9088] flex items-center gap-1.5 font-mono">
                               <Hash className="w-3 h-3 opacity-50" /> {log.target_id?.substring(0, 8)}
-                              {log.details?.user && (
-                                <span className="opacity-50 ml-2">({log.details.user})</span>
+                              {!!log.details?.user && (
+                                <span className="opacity-50 ml-2">({log.details.user as string})</span>
                               )}
                             </div>
                           </div>

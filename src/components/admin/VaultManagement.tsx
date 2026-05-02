@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -32,8 +31,8 @@ export default function VaultManagement() {
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
-    let query = (supabase
-      .from("vault_access_requests") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    let query = supabase
+      .from("vault_access_requests")
       .select(`
         *,
         book:books(title, cover_url)
@@ -48,13 +47,13 @@ export default function VaultManagement() {
 
     const { data } = await query;
     if (data) {
-      const { data: profiles } = await (supabase
-        .from("user_profiles") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+      const { data: profiles } = await supabase
+        .from("user_profiles")
         .select("id, display_name");
 
-      const enriched = (data as any[]).map((req: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+      const enriched = (data as Record<string, unknown>[]).map((req) => ({
         ...req,
-        user: (profiles as any[])?.find(p => p.id === req.user_id) || { display_name: "Unknown Seeker" } // eslint-disable-line @typescript-eslint/no-explicit-any
+        user: (profiles as Record<string, unknown>[])?.find(p => p.id === req.user_id) || { display_name: "Unknown Seeker" }
       })) as Request[];
       
       setRequests(enriched);
@@ -68,13 +67,13 @@ export default function VaultManagement() {
 
   async function updateStatus(id: string, status: "approved" | "declined") {
     setProcessingId(id);
-    const { error } = await (supabase
-      .from("vault_access_requests") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase
+      .from("vault_access_requests")
       .update({ 
         status, 
         reviewed_at: new Date().toISOString(),
         admin_note: adminNote.trim() || null
-      })
+      } as never)
       .eq("id", id);
 
     if (!error) {

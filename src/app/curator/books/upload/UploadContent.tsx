@@ -147,9 +147,8 @@ export default function UploadContent() {
       const fileUrl = `${bucketName}/${bookFolder}/${bookFileName}`;
 
       // 3. Create DB Entry
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: dbError } = await (supabase
-        .from("books") as any)
+      const { error: dbError } = await supabase
+        .from("books")
         .insert({
           title,
           author: author || null,
@@ -164,7 +163,7 @@ export default function UploadContent() {
           added_date: new Date().toISOString(),
           views: 0,
           downloads: 0
-        });
+        } as never);
 
       if (dbError) throw dbError;
 

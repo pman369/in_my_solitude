@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { logger } from '@/lib/logger';
 import { RotateCcw, AlertTriangle } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Error({
   error,
@@ -12,6 +12,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     // Log the error to our centralized logger
     logger.error('Uncaught error in application boundary', { digest: error.digest }, error);
@@ -41,13 +43,13 @@ export default function Error({
           <RotateCcw className="w-4 h-4" /> Try again
         </button>
         
-        <Link
-          href="/"
+        <button
+          onClick={() => router.push('/')}
           className="flex items-center justify-center px-6 py-2.5 rounded text-sm font-semibold border transition-all duration-200"
           style={{ border: '1px solid #2A2A2A', color: '#9A9088' }}
         >
           Return Home
-        </Link>
+        </button>
       </div>
       
       {error.digest && (

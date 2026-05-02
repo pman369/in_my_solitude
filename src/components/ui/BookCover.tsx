@@ -1,5 +1,6 @@
 
 import React from 'react';
+import Image from 'next/image';
 import { 
   Eye, 
   Skull, 
@@ -12,10 +13,11 @@ import {
   Flame,
   Star,
   Key,
-  Database
+  Database,
+  LucideIcon
 } from 'lucide-react';
 
-interface BookCoverProps {
+export interface BookCoverProps {
   title: string;
   author?: string | null;
   coverUrl?: string | null;
@@ -24,7 +26,7 @@ interface BookCoverProps {
   isRestricted?: boolean;
 }
 
-const CATEGORY_MAP: Record<string, { color: string; icon: React.ElementType }> = {
+const CATEGORY_MAP: Record<string, { color: string; icon: LucideIcon }> = {
   'consciousness-mind': { color: '#4F46E5', icon: Eye },
   'forbidden-real-history': { color: '#B45309', icon: Pyramid },
   'spirituality-mysticism': { color: '#7C3AED', icon: Flame },
@@ -41,7 +43,7 @@ export function BookCover({ title, author, coverUrl, categorySlug, className = '
   if (coverUrl) {
     return (
       <div className={`relative w-full h-full overflow-hidden rounded ${className}`}>
-        <img src={coverUrl} alt={title} className="w-full h-full object-cover" />
+        <Image src={coverUrl} alt={title} fill className="object-cover" />
       </div>
     );
   }

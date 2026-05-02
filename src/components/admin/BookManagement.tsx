@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -24,7 +23,7 @@ import Link from "next/link";
 import type { Database } from "@/types/database";
 
 type Book = Database["public"]["Tables"]["books"]["Row"] & {
-  category?: { name: string };
+  category?: { name: string } | null;
 };
 
 export default function BookManagement() {
@@ -39,14 +38,14 @@ export default function BookManagement() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
-    const { data } = await (supabase.from("categories") as any).select("id, name").order("name"); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const { data } = await supabase.from("categories").select("id, name").order("name");
     if (data) setCategories(data);
   }, [supabase]);
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
-    const query = (supabase
-      .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    const query = supabase
+      .from("books")
       .select(`
         *,
         category:categories(name)
@@ -66,9 +65,9 @@ export default function BookManagement() {
 
   async function togglePublished(id: string, current: boolean | null) {
     const nextValue = !current;
-    const { error } = await (supabase
-      .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .update({ is_published: nextValue })
+    const { error } = await supabase
+      .from("books")
+      .update({ is_published: nextValue } as never)
       .eq("id", id);
     
     if (!error) {
@@ -86,8 +85,8 @@ export default function BookManagement() {
     if (!confirm("Are you sure you want to delete this tome? This action is permanent and will remove the entry from the ledger.")) return;
     
     setDeletingId(id);
-    const { error } = await (supabase
-      .from("books") as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase
+      .from("books")
       .delete()
       .eq("id", id);
 
