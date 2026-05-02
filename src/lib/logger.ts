@@ -8,7 +8,7 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 interface LogMessage {
   level: LogLevel;
   message: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   error?: Error;
 }
 
@@ -40,19 +40,19 @@ class Logger {
     }
   }
 
-  info(message: string, context?: Record<string, any>) {
+  info(message: string, context?: Record<string, unknown>) {
     this.log({ level: 'info', message, context });
   }
 
-  warn(message: string, context?: Record<string, any>, error?: Error) {
+  warn(message: string, context?: Record<string, unknown>, error?: Error) {
     this.log({ level: 'warn', message, context, error });
   }
 
-  error(message: string, context?: Record<string, any>, error?: Error) {
+  error(message: string, context?: Record<string, unknown>, error?: Error) {
     this.log({ level: 'error', message, context, error });
   }
 
-  debug(message: string, context?: Record<string, any>) {
+  debug(message: string, context?: Record<string, unknown>) {
     this.log({ level: 'debug', message, context });
   }
 }

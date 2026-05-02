@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { logger } from '@/lib/logger';
 import { RotateCcw, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Error({
   error,
@@ -27,7 +28,7 @@ export default function Error({
       </h2>
       
       <p className="max-w-md mb-8 text-sm leading-relaxed" style={{ color: '#9A9088' }}>
-        An unexpected error occurred. We've been notified and are looking into it. 
+        An unexpected error occurred. We&apos;ve been notified and are looking into it. 
         Please try refreshing the page or returning to the archive.
       </p>
 
@@ -40,13 +41,13 @@ export default function Error({
           <RotateCcw className="w-4 h-4" /> Try again
         </button>
         
-        <a
+        <Link
           href="/"
           className="flex items-center justify-center px-6 py-2.5 rounded text-sm font-semibold border transition-all duration-200"
           style={{ border: '1px solid #2A2A2A', color: '#9A9088' }}
         >
           Return Home
-        </a>
+        </Link>
       </div>
       
       {error.digest && (

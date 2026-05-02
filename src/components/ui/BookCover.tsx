@@ -24,7 +24,7 @@ interface BookCoverProps {
   isRestricted?: boolean;
 }
 
-const CATEGORY_MAP: Record<string, { color: string; icon: any }> = {
+const CATEGORY_MAP: Record<string, { color: string; icon: React.ElementType }> = {
   'consciousness-mind': { color: '#4F46E5', icon: Eye },
   'forbidden-real-history': { color: '#B45309', icon: Pyramid },
   'spirituality-mysticism': { color: '#7C3AED', icon: Flame },

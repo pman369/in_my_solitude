@@ -5,7 +5,7 @@ import { Search, SlidersHorizontal, X, BookOpen, Loader2, ChevronDown } from "lu
 import Link from "next/link";
 import { useState } from "react";
 import { useLibrary } from "@/hooks/useLibrary";
-import type { Book } from "@/services/libraryService";
+import type { Book, SortOption } from "@/services/libraryService";
 import { BookCover } from "@/components/ui/BookCover";
 
 const SORT_OPTIONS = [
@@ -74,7 +74,7 @@ export default function LibraryContent() {
               <select
                 id="library-sort"
                 value={sort}
-                onChange={(e) => setSort(e.target.value as any)}
+                onChange={(e) => setSort(e.target.value as SortOption)}
                 className="appearance-none pl-3 pr-8 py-2.5 rounded text-sm outline-none cursor-pointer"
                 style={{ background: "#141414", border: "1px solid #2A2A2A", color: "#9A9088" }}
               >
@@ -233,7 +233,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
   );
 }
 
-function EmptyState({ query, onClear }: { query: string; onClear: () => void }) {
+function EmptyState({ onClear }: { query?: string; onClear: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-32 text-center">
       <BookOpen className="w-10 h-10 mb-4 opacity-20" />

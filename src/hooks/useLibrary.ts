@@ -1,8 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { libraryService, type Book, type Category, type SortOption } from "@/services/libraryService";
-import { logger } from "@/lib/logger";
+import { libraryService, type Book, type SortOption } from "@/services/libraryService";
 
 const PAGE_SIZE = 24;
 

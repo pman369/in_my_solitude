@@ -126,9 +126,11 @@ export default function RequestDeskAdminPage() {
       };
 
       if (table === 'book_requests') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const res = await (supabase.from('book_requests') as any).update(updateData).eq("id", id);
         error = res.error;
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const res = await (supabase.from('book_donations') as any).update(updateData).eq("id", id);
         error = res.error;
       }
