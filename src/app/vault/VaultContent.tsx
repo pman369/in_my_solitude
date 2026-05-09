@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Key, Lock, Eye } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
+import { BookCover } from "@/components/ui/BookCover";
 import type { VaultBook } from "./page";
 
 interface Props {
@@ -120,25 +121,22 @@ function VaultCard({ book, index }: { book: VaultBook; index: number }) {
           boxShadow: hovered ? "0 8px 32px rgba(153,27,27,0.2)" : "none",
         }}
       >
-        {/* Blurred cover image */}
-        {book.cover_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={book.cover_url}
-            alt=""
-            className="w-full h-full object-cover transition-all duration-500"
-            style={{
-              filter: "blur(6px) brightness(0.35)",
-              transform: hovered ? "scale(1.05)" : "scale(1)",
-            }}
+        {/* The Book Cover base */}
+        <div 
+          className="w-full h-full transition-all duration-500"
+          style={{
+            filter: "blur(6px) brightness(0.35)",
+            transform: hovered ? "scale(1.05)" : "scale(1)",
+          }}
+        >
+          <BookCover 
+            title={book.title}
+            author={book.author}
+            coverUrl={book.cover_url}
+            categorySlug={book.categories?.slug}
+            isRestricted={true}
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="font-heading text-4xl" style={{ color: "rgba(153,27,27,0.2)" }}>
-              {book.title[0]?.toUpperCase()}
-            </span>
-          </div>
-        )}
+        </div>
 
         {/* Lock overlay always visible */}
         <div

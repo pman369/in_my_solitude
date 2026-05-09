@@ -374,16 +374,13 @@ export default function BookDetailContent({ book, related }: Props) {
                       border: "1px solid #2A2A2A",
                     }}
                   >
-                    {rel.cover_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={rel.cover_url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="font-heading text-2xl" style={{ color: "rgba(201,168,76,0.2)" }}>
-                          {rel.title[0]?.toUpperCase()}
-                        </span>
-                      </div>
-                    )}
+                    <BookCover 
+                      title={rel.title}
+                      author={rel.author}
+                      coverUrl={rel.cover_url}
+                      categorySlug={book.categories?.slug}
+                      size="sm"
+                    />
                   </div>
                   <p
                     className="text-xs font-medium leading-snug line-clamp-2 transition-colors duration-200 group-hover:text-[#C9A84C]"
