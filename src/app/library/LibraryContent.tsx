@@ -1,7 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, X, BookOpen, Loader2, ChevronDown } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useLibrary } from "@/hooks/useLibrary";
@@ -191,47 +193,52 @@ function CategoryPill({ active, onClick, label, icon }: { active: boolean; onCli
   );
 }
 
-function BookCard({ book, index }: { book: Book; index: number }) {
-  const [hovered, setHovered] = useState(false);
-
+const BookCard = memo(function BookCard({ book, index }: { book: Book; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.04, 0.4) }}
     >
-      <Link
-        href={`/book/${book.id}`}
-        className="group block"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
+      <Link href={`/book/${book.id}`} className="group block">
+        {/* Cover */}
         <div
-          className="relative rounded overflow-hidden mb-3 transition-all duration-300"
-          style={{
-            aspectRatio: "2/3",
-            background: "#141414",
-            border: `1px solid ${hovered ? "rgba(201,168,76,0.3)" : "#2A2A2A"}`,
-            transform: hovered ? "translateY(-4px)" : "translateY(0)",
-          }}
+          className="relative rounded overflow-hidden mb-3 transition-all duration-300 border border-[#2A2A2A] group-hover:border-[rgba(201,168,76,0.3)] group-hover:-translate-y-1"
+          style={{ aspectRatio: "2/3", background: "#141414" }}
         >
-          <BookCover 
-            title={book.title}
-            author={book.author}
-            coverUrl={book.cover_url}
-            categorySlug={book.categories?.slug}
-            isRestricted={book.is_restricted ?? false}
-          />
+          {book.cover_url ? (
+            <Image
+              src={book.cover_url}
+              alt={book.title}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              loading={index < 12 ? "eager" : "lazy"}
+              priority={index < 6}
+            />
+          ) : (
+            <BookCover
+              title={book.title}
+              author={book.author}
+              categorySlug={book.categories?.slug}
+              isRestricted={book.is_restricted ?? false}
+            />
+          )}
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <BookOpen className="w-6 h-6 text-[#C9A84C]" />
           </div>
         </div>
-        <h3 className="text-xs font-semibold mb-1 line-clamp-2" style={{ color: hovered ? "#C9A84C" : "#F0EDE6" }}>{book.title}</h3>
-        {book.author && <p className="text-[10px] uppercase tracking-wider opacity-50">{book.author}</p>}
+        <h3 className="text-xs font-semibold mb-1 line-clamp-2 text-[#F0EDE6] group-hover:text-[#C9A84C] transition-colors duration-200">
+          {book.title}
+        </h3>
+        {book.author && (
+          <p className="text-[10px] uppercase tracking-wider opacity-50">{book.author}</p>
+        )}
       </Link>
     </motion.div>
   );
-}
+});
+BookCard.displayName = "BookCard";
 
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (

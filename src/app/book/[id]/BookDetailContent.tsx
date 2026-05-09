@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   BookOpen, Download, ArrowLeft, Tag, Calendar,
@@ -149,7 +150,7 @@ export default function BookDetailContent({ book, related }: Props) {
                 boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
               }}
             >
-              <BookCover 
+              <BookCover
                 title={book.title}
                 author={book.author}
                 coverUrl={book.cover_url}

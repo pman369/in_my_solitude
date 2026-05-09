@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+import Image from "next/image";
 import { 
   Eye, 
   History, 
@@ -37,7 +38,7 @@ const CATEGORY_MAP: Record<string, { icon: React.ElementType; color: string; lab
   "philosophy-creativity": { icon: PenTool, color: "#4B5563", label: "Philosophy" },
 };
 
-export const BookCover = ({
+export const BookCover = memo(function BookCover({
   title,
   author,
   categorySlug,
@@ -45,15 +46,18 @@ export const BookCover = ({
   coverUrl,
   className,
   size = "md",
-}: BookCoverProps) => {
-  // If coverUrl exists, render the image
+}: BookCoverProps) {
+  // ── Real cover image ────────────────────────────────────────────────────────
   if (coverUrl) {
     return (
       <div className={cn("relative aspect-[2/3] overflow-hidden rounded-sm shadow-card group", className)}>
-        <img
+        <Image
           src={coverUrl}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
         />
         {isRestricted && (
           <div className="absolute top-2 right-2 p-1.5 bg-crimson/90 rounded-full shadow-lg">
@@ -169,4 +173,5 @@ export const BookCover = ({
       )}
     </div>
   );
-};
+});
+BookCover.displayName = "BookCover";
