@@ -47,4 +47,7 @@ failed-import.csv
 scripts/covers/
 scripts/pdfs/
 scripts/*.csv
+InMySolitude_Manifesto.md
 !scripts/sample-books.csv
+InMySolitude_BookCover_DesignSystem.md
+vercel-deploy-preview-image.png
