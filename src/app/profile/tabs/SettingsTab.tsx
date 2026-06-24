@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Type, Eye, Bell, Trash2,
@@ -427,7 +427,7 @@ function NotificationsSection({ userId }: { userId: string }) {
   const [saved,   setSaved]   = useState(false);
   const [fetching, setFetching] = useState(true);
 
-  useState(() => {
+  useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("notification_preferences")
@@ -435,7 +435,10 @@ function NotificationsSection({ userId }: { userId: string }) {
       .eq("user_id", userId)
       .single()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then(({ data }: { data: any }) => {
+      .then(({ data, error }: { data: any; error: { message: string } | null }) => {
+        if (error && error.message !== 'JSON object requested, multiple (or no) rows returned') {
+          console.error("Failed to fetch notification preferences:", error.message);
+        }
         if (data) setPrefs({
           vault_request_updates:   data.vault_request_updates,
           book_request_fulfilled:  data.book_request_fulfilled,
@@ -445,7 +448,8 @@ function NotificationsSection({ userId }: { userId: string }) {
         });
         setFetching(false);
       });
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const NOTIF_LABELS: { key: keyof typeof prefs; label: string; description: string }[] = [
     { key: "vault_request_updates",   label: "Vault request updates",   description: "When your access request is approved or declined" },
@@ -459,7 +463,10 @@ function NotificationsSection({ userId }: { userId: string }) {
     e.preventDefault();
     setLoading(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from("notification_preferences") as any).upsert({ user_id: userId, ...prefs }, { onConflict: "user_id" });
+    const { error } = await (supabase.from("notification_preferences") as any).upsert({ user_id: userId, ...prefs }, { onConflict: "user_id" });
+    if (error) {
+      console.error("Failed to save notification preferences:", error.message);
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
     setLoading(false);

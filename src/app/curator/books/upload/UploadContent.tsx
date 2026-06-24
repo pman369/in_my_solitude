@@ -58,7 +58,8 @@ export default function UploadContent() {
       .from("categories")
       .select("*")
       .order("sort_order")
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error("Failed to fetch categories:", error.message);
         if (data) setCategories(data as Category[]);
       });
   }, [supabase]);

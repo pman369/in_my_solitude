@@ -81,8 +81,12 @@ export default function BookDetailContent({ book, related }: Props) {
   async function handleDownload() {
     if (!isAuthenticated) { setLoginPrompt(true); return; }
     if (!book.file_url) return;
-    const res = await fetch(`/api/storage/signed-url?file=${encodeURIComponent(book.file_url)}&download=1`);
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/storage/signed-url?file=${encodeURIComponent(book.file_url)}&download=1`);
+      if (!res.ok) {
+        console.error("Download URL request failed:", res.status, res.statusText);
+        return;
+      }
       const { url } = await res.json() as { url: string };
       setDownloadUrl(url);
       // Trigger browser download
@@ -90,6 +94,8 @@ export default function BookDetailContent({ book, related }: Props) {
       a.href = url;
       a.download = `${book.title}.pdf`;
       a.click();
+    } catch (err) {
+      console.error("Failed to initiate download:", err);
     }
   }
 

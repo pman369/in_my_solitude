@@ -30,10 +30,14 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rateLimitTable = (supabase as any).from("chat_rate_limits");
 
-    const { data: rateData } = await rateLimitTable
+    const { data: rateData, error: rateFetchError } = await rateLimitTable
       .select("*")
       .eq("identifier", identifier)
-      .single() as { data: RateRow | null };
+      .single() as { data: RateRow | null; error: { code?: string; message?: string } | null };
+
+    if (rateFetchError && rateFetchError.code !== "PGRST116") {
+      console.error("Rate limit fetch error:", rateFetchError);
+    }
 
     const now = new Date();
 
@@ -42,22 +46,25 @@ export async function POST(request: NextRequest) {
       const windowExpired = now.getTime() - windowStart.getTime() > RATE_WINDOW_MS;
 
       if (windowExpired) {
-        await rateLimitTable
+        const { error: rlUpdateErr } = await rateLimitTable
           .update({ message_count: 1, window_start: now.toISOString(), last_message: now.toISOString() })
           .eq("identifier", identifier);
+        if (rlUpdateErr) console.error("Rate limit reset error:", rlUpdateErr);
       } else if (rateData.message_count >= RATE_LIMIT) {
         return NextResponse.json(
           { error: "You have reached the hourly message limit. Please return in a little while.", code: "RATE_LIMITED" },
           { status: 429 }
         );
       } else {
-        await rateLimitTable
+        const { error: rlIncrErr } = await rateLimitTable
           .update({ message_count: rateData.message_count + 1, last_message: now.toISOString() })
           .eq("identifier", identifier);
+        if (rlIncrErr) console.error("Rate limit increment error:", rlIncrErr);
       }
     } else {
-      await rateLimitTable
+      const { error: rlInsertErr } = await rateLimitTable
         .insert({ identifier, message_count: 1 });
+      if (rlInsertErr) console.error("Rate limit insert error:", rlInsertErr);
     }
 
     // ── Parse request body ───────────────────────────────────
@@ -159,7 +166,9 @@ and guide them through the request or donation process if needed.
         session_id: sessionId,
         role:       "user",
         content:    lastUser.content,
-      }).then(() => {});
+      }).then(({ error: msgErr }: { error: { message: string } | null }) => {
+        if (msgErr) console.error("Failed to persist chat message:", msgErr.message);
+      });
     }
 
     // ── Stream Gemini response directly to browser ───────

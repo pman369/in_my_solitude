@@ -37,13 +37,15 @@ export default function RequestDeskManagement() {
     let reqQuery = supabase.from("book_requests").select("*");
     if (activeTab === "pending") reqQuery = reqQuery.eq("status", "open");
     else reqQuery = reqQuery.neq("status", "open");
-    const { data: requests } = await reqQuery;
+    const { data: requests, error: reqErr } = await reqQuery;
+    if (reqErr) console.error("Failed to fetch book requests:", reqErr.message);
 
     // Fetch Donations
     let donQuery = supabase.from("book_donations").select("*");
     if (activeTab === "pending") donQuery = donQuery.eq("status", "under_review");
     else donQuery = donQuery.neq("status", "under_review");
-    const { data: donations } = await donQuery;
+    const { data: donations, error: donErr } = await donQuery;
+    if (donErr) console.error("Failed to fetch donations:", donErr.message);
 
     // Merge and Sort
     const allItems = [
@@ -56,7 +58,8 @@ export default function RequestDeskManagement() {
     });
 
     // Enriched with user info
-    const { data: profiles } = await supabase.from("user_profiles").select("id, display_name");
+    const { data: profiles, error: profilesErr } = await supabase.from("user_profiles").select("id, display_name");
+    if (profilesErr) console.error("Failed to fetch profiles:", profilesErr.message);
     const enriched = allItems.map(item => ({
       ...item,
       user: (profiles as Record<string, unknown>[])?.find(p => p.id === item.user_id) || { display_name: "Anonymous Seeker" }

@@ -51,11 +51,14 @@ export function useReadingList(bookId?: string): UseReadingListReturn {
     if (!user) { setEntries([]); setFetching(false); return; }
     setFetching(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any)
+    const { data, error } = await (supabase as any)
       .from("reading_list")
       .select("*")
       .eq("user_id", user.id)
-      .order("added_at", { ascending: false }) as { data: ReadingListEntry[] | null };
+      .order("added_at", { ascending: false }) as { data: ReadingListEntry[] | null; error: { message: string } | null };
+    if (error) {
+      console.error("Failed to fetch reading list:", error.message);
+    }
     setEntries(data ?? []);
     setFetching(false);
   }, [user, supabase]);
@@ -93,15 +96,17 @@ export function useReadingList(bookId?: string): UseReadingListReturn {
     try {
       if (isSaved) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any)
+        const { error } = await (supabase as any)
           .from("reading_list")
           .delete()
           .eq("user_id", user.id)
           .eq("book_id", bookId);
+        if (error) console.error("Failed to remove from reading list:", error.message);
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase.from("reading_list") as any)
+        const { error } = await (supabase.from("reading_list") as any)
           .insert({ user_id: user.id, book_id: bookId, status: "want_to_read" });
+        if (error) console.error("Failed to add to reading list:", error.message);
       }
       await fetchList();
     } finally {
@@ -114,11 +119,12 @@ export function useReadingList(bookId?: string): UseReadingListReturn {
     setLoading(true);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from("reading_list") as any)
+      const { error } = await (supabase.from("reading_list") as any)
         .upsert(
           { user_id: user.id, book_id: bookId, status, updated_at: new Date().toISOString() },
           { onConflict: "user_id,book_id" }
         );
+      if (error) console.error("Failed to update reading status:", error.message);
       await fetchList();
     } finally {
       setLoading(false);

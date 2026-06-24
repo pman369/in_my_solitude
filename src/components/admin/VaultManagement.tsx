@@ -45,11 +45,15 @@ export default function VaultManagement() {
       query = query.neq("status", "pending");
     }
 
-    const { data } = await query;
+    const { data, error: queryErr } = await query;
+    if (queryErr) {
+      console.error("Failed to fetch vault requests:", queryErr.message);
+    }
     if (data) {
-      const { data: profiles } = await supabase
+      const { data: profiles, error: profilesErr } = await supabase
         .from("user_profiles")
         .select("id, display_name");
+      if (profilesErr) console.error("Failed to fetch profiles:", profilesErr.message);
 
       const enriched = (data as Record<string, unknown>[]).map((req) => ({
         ...req,
