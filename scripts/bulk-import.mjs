@@ -502,7 +502,7 @@ async function main() {
     } catch (err) {
       // If DB insert succeeded but uploads failed, try to clean up the orphan record
       if (bookId) {
-        await supabase.from("books").delete().eq("id", bookId).catch(() => {});
+        await supabase.from("books").delete().eq("id", bookId);
       }
       results.failed.push({ lineNo: book.lineNo, title: book.title, error: err.message });
     }

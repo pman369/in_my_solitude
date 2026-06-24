@@ -36,9 +36,6 @@ yarn-error.log*
 next-env.d.ts
 
 /.documents/
-/.gemini/
-/scripts/
-/scripts
 .vercel
 .env*.local
 
@@ -47,6 +44,8 @@ failed-import.csv
 scripts/covers/
 scripts/pdfs/
 scripts/*.csv
+scripts/pdf/
+scripts/VAULT-BOOKS/
 InMySolitude_Manifesto.md
 !scripts/sample-books.csv
 InMySolitude_BookCover_DesignSystem.md
