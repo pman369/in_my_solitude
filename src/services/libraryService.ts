@@ -68,13 +68,15 @@ export const libraryService = {
 
     if (categorySlug) {
       // First get the category ID
-      const { data: catData } = await supabase
+      const { data: catData, error: catError } = await supabase
         .from("categories")
         .select("id")
         .eq("slug", categorySlug)
         .single();
       
-      if (catData) {
+      if (catError) {
+        console.error(`Failed to resolve category slug "${categorySlug}":`, catError.message);
+      } else if (catData) {
         qb = qb.eq("category_id", catData.id);
       }
     }

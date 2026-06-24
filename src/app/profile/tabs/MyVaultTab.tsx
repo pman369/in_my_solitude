@@ -33,14 +33,20 @@ export default function MyVaultTab({ userId }: Props) {
       .select("*")
       .eq("user_id", userId)
       .order("requested_at", { ascending: false })
-      .then(async ({ data: rows }: { data: VaultRequest[] | null }) => {
+      .then(async ({ data: rows, error }: { data: VaultRequest[] | null; error: { message: string } | null }) => {
+        if (error) {
+          console.error("Failed to fetch vault requests:", error.message);
+          setLoading(false);
+          return;
+        }
         if (!rows?.length) { setLoading(false); return; }
         const bookIds = rows.map(r => r.book_id);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: books } = await (supabase as any)
+        const { data: books, error: booksErr } = await (supabase as any)
           .from("books")
           .select("id, title, author, cover_url")
-          .in("id", bookIds) as { data: Pick<Book, "id" | "title" | "author" | "cover_url">[] | null };
+          .in("id", bookIds) as { data: Pick<Book, "id" | "title" | "author" | "cover_url">[] | null; error: { message: string } | null };
+        if (booksErr) console.error("Failed to fetch books for vault requests:", booksErr.message);
         const bookMap = Object.fromEntries((books ?? []).map(b => [b.id, b]));
         setRequests(rows.map(r => ({ 
           ...r, 

@@ -45,13 +45,16 @@ export async function logActivity({ action, targetId, targetType, details }: Log
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await (supabase.from("activity_logs") as any).insert({
+    const { error } = await (supabase.from("activity_logs") as any).insert({
       user_id: user.id,
       action,
       target_id: targetId,
       target_type: targetType,
       details: details || {},
     });
+    if (error) {
+      console.error("Failed to log activity:", error.message);
+    }
   } catch (err) {
     console.error("Failed to log activity:", err);
   }

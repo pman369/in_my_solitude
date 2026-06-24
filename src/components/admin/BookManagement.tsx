@@ -38,7 +38,8 @@ export default function BookManagement() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
-    const { data } = await supabase.from("categories").select("id, name").order("name");
+    const { data, error } = await supabase.from("categories").select("id, name").order("name");
+    if (error) console.error("Failed to fetch categories:", error.message);
     if (data) setCategories(data);
   }, [supabase]);
 

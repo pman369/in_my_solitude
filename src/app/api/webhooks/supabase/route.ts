@@ -32,10 +32,15 @@ export async function POST(req: Request) {
     if (table === 'user_profiles' && type === 'INSERT') {
       const profile = record;
       // Fetch email from auth.users (requires service role)
-      const { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
-      
-      if (user?.email && profile.email_notifications) {
-        await sendWelcomeEmail(user.email, profile.display_name || 'Reader');
+      const { data: { user }, error: userFetchErr } = await supabase.auth.admin.getUserById(profile.id);
+      if (userFetchErr) {
+        console.error('Failed to fetch user for welcome email:', userFetchErr.message);
+      } else if (user?.email && profile.email_notifications) {
+        try {
+          await sendWelcomeEmail(user.email, profile.display_name || 'Reader');
+        } catch (emailErr) {
+          console.error('Failed to send welcome email:', emailErr);
+        }
       }
     }
 
@@ -44,28 +49,35 @@ export async function POST(req: Request) {
       const request = record;
       
       // Fetch user profile and book details for the email context
-      const [{ data: p }, { data: b }] = await Promise.all([
+      const [{ data: p, error: profileErr }, { data: b, error: bookErr }] = await Promise.all([
         supabase.from('user_profiles').select('email_notifications').eq('id', request.user_id).single(),
         supabase.from('books').select('title').eq('id', request.book_id).single()
       ]);
+      if (profileErr) console.error('Failed to fetch profile for vault email:', profileErr.message);
+      if (bookErr) console.error('Failed to fetch book for vault email:', bookErr.message);
       
       const profile = p as unknown as { email_notifications: boolean } | null;
       const book = b as unknown as { title: string } | null;
 
       if (profile?.email_notifications && book) {
         // Fetch user's email
-        const { data: { user } } = await supabase.auth.admin.getUserById(request.user_id);
-        
-        if (user?.email) {
-          if (type === 'INSERT') {
-            await sendVaultRequestReceivedEmail(user.email, book.title);
-          } 
-          else if (type === 'UPDATE' && old_record.status !== request.status) {
-            if (request.status === 'approved') {
-              await sendVaultRequestApprovedEmail(user.email, book.title, request.admin_note);
-            } else if (request.status === 'denied') {
-              await sendVaultRequestDeniedEmail(user.email, book.title, request.admin_note);
+        const { data: { user }, error: vaultUserErr } = await supabase.auth.admin.getUserById(request.user_id);
+        if (vaultUserErr) {
+          console.error('Failed to fetch user for vault email:', vaultUserErr.message);
+        } else if (user?.email) {
+          try {
+            if (type === 'INSERT') {
+              await sendVaultRequestReceivedEmail(user.email, book.title);
+            } 
+            else if (type === 'UPDATE' && old_record.status !== request.status) {
+              if (request.status === 'approved') {
+                await sendVaultRequestApprovedEmail(user.email, book.title, request.admin_note);
+              } else if (request.status === 'denied') {
+                await sendVaultRequestDeniedEmail(user.email, book.title, request.admin_note);
+              }
             }
+          } catch (emailErr) {
+            console.error('Failed to send vault request email:', emailErr);
           }
         }
       }

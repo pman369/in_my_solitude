@@ -41,7 +41,8 @@ export default function MyShelfTab({ userId }: Props) {
       .select("id, title, author, cover_url")
       .in("id", bookIds)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then(({ data: books }: { data: any[] | null }) => {
+      .then(({ data: books, error }: { data: any[] | null; error: { message: string } | null }) => {
+        if (error) console.error("Failed to fetch books for shelf:", error.message);
         const bookMap = Object.fromEntries((books ?? []).map(b => [b.id, b]));
         setEntriesWithBooks(
           entries.map(e => ({ ...e, books: bookMap[e.book_id] ?? null } as EntryWithBook))
@@ -238,21 +239,29 @@ function NotesDrawer({ userId, bookId, bookTitle }: { userId: string; bookId: st
       .eq("user_id", userId)
       .eq("book_id", bookId)
       .order("created_at", { ascending: false })
-      .then(({ data }: { data: BookNote[] | null }) => { setNotes(data ?? []); setLoading(false); });
+      .then(({ data, error }: { data: BookNote[] | null; error: { message: string } | null }) => {
+        if (error) console.error("Failed to fetch book notes:", error.message);
+        setNotes(data ?? []);
+        setLoading(false);
+      });
   }, [supabase, userId, bookId]);
 
   async function addNote() {
     if (!text.trim()) return;
     setSaving(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data } = await (supabase as any).from("book_notes").insert({
+    const { data, error } = await (supabase as any).from("book_notes").insert({
       user_id: userId,
       book_id: bookId,
       note: text.trim(),
       page_ref: pageRef ? parseInt(pageRef, 10) : null,
       is_private: true,
-    }).select("*").single() as { data: BookNote | null };
-    if (data) setNotes(prev => [data as BookNote, ...prev]);
+    }).select("*").single() as { data: BookNote | null; error: { message: string } | null };
+    if (error) {
+      console.error("Failed to save note:", error.message);
+    } else if (data) {
+      setNotes(prev => [data as BookNote, ...prev]);
+    }
     setText("");
     setPageRef("");
     setSaving(false);
@@ -260,7 +269,11 @@ function NotesDrawer({ userId, bookId, bookTitle }: { userId: string; bookId: st
 
   async function deleteNote(id: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from("book_notes").delete().eq("id", id);
+    const { error } = await (supabase as any).from("book_notes").delete().eq("id", id);
+    if (error) {
+      console.error("Failed to delete note:", error.message);
+      return;
+    }
     setNotes(prev => prev.filter(n => n.id !== id));
   }
 
