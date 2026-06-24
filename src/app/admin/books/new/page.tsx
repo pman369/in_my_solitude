@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
   ArrowLeft, 
@@ -10,23 +10,25 @@ import {
   Image as ImageIcon, 
   Settings,
   ShieldAlert,
-  X,
-  Loader2,
-  AlertCircle
+  Loader2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/hooks/useUser";
+import { useCategories } from "@/hooks/useCategories";
 import { FileDropZone } from "@/components/admin/FileDropZone";
 import { CoverGenerationHelper } from "@/components/admin/CoverGenerationHelper";
+import { TagInput } from "@/components/shared/TagInput";
+import { ToggleSwitch } from "@/components/shared/ToggleSwitch";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { logActivity } from "@/lib/admin/activity-logger";
 
 export default function NewBookPage() {
   const router = useRouter();
   const { user } = useUser();
   const supabase = createClient();
+  const categories = useCategories();
 
   // State
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,33 +52,9 @@ export default function NewBookPage() {
     is_published:      true,
   });
 
-  const [tagInput, setTagInput] = useState("");
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const { data } = await supabase.from("categories").select("id, name").order("name");
-      if (data) setCategories(data);
-    }
-    fetchCategories();
-  }, [supabase]);
-
   function handleCoverSelect(file: File) {
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
-  }
-
-  function handleTagKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && tagInput.trim()) {
-      e.preventDefault();
-      if (!form.tags.includes(tagInput.trim())) {
-        setForm({ ...form, tags: [...form.tags, tagInput.trim()] });
-      }
-      setTagInput("");
-    }
-  }
-
-  function removeTag(tag: string) {
-    setForm({ ...form, tags: form.tags.filter(t => t !== tag) });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -295,25 +273,11 @@ export default function NewBookPage() {
 
             <div className="space-y-2">
               <label htmlFor="tags" className="text-[10px] font-bold uppercase tracking-widest text-[#9A9088]">Tags</label>
-              <div className="flex flex-wrap gap-2 p-2 bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg min-h-[50px]">
-                {form.tags.map(tag => (
-                  <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#1A1A1A] border border-[#2A2A2A] text-xs text-[#C9A84C]">
-                    {tag}
-                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-400">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  id="tags"
-                  type="text"
-                  value={tagInput}
-                  onChange={e => setTagInput(e.target.value)}
-                  onKeyDown={handleTagKeyDown}
-                  placeholder={form.tags.length === 0 ? "Press enter to add tags..." : ""}
-                  className="flex-1 min-w-[120px] bg-transparent outline-none text-sm px-2"
-                />
-              </div>
+              <TagInput
+                id="tags"
+                tags={form.tags}
+                onChange={tags => setForm({ ...form, tags })}
+              />
             </div>
           </div>
 
@@ -421,13 +385,7 @@ export default function NewBookPage() {
                    <p className="text-sm text-[#F0EDE6] font-medium">Allow Downloads</p>
                    <p className="text-[10px] text-[#9A9088] uppercase tracking-widest">Can readers keep it?</p>
                  </div>
-                 <button 
-                  type="button"
-                  onClick={() => setForm({ ...form, download_enabled: !form.download_enabled })}
-                  className={`w-12 h-6 rounded-full transition-all relative ${form.download_enabled ? 'bg-[#C9A84C]' : 'bg-[#2A2A2A]'}`}
-                 >
-                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-[#0D0D0D] transition-all ${form.download_enabled ? 'left-7' : 'left-1'}`} />
-                 </button>
+                 <ToggleSwitch enabled={form.download_enabled} onChange={v => setForm({ ...form, download_enabled: v })} />
                </div>
 
                <div className="flex items-center justify-between">
@@ -435,13 +393,7 @@ export default function NewBookPage() {
                    <p className="text-sm text-[#F0EDE6] font-medium">Visibility</p>
                    <p className="text-[10px] text-[#9A9088] uppercase tracking-widest">Is it ready for eyes?</p>
                  </div>
-                 <button 
-                  type="button"
-                  onClick={() => setForm({ ...form, is_published: !form.is_published })}
-                  className={`w-12 h-6 rounded-full transition-all relative ${form.is_published ? 'bg-[#C9A84C]' : 'bg-[#2A2A2A]'}`}
-                 >
-                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-[#0D0D0D] transition-all ${form.is_published ? 'left-7' : 'left-1'}`} />
-                 </button>
+                 <ToggleSwitch enabled={form.is_published} onChange={v => setForm({ ...form, is_published: v })} />
                </div>
             </div>
           </div>
@@ -449,12 +401,7 @@ export default function NewBookPage() {
           <CoverGenerationHelper />
 
           {/* Form Error */}
-          {error && (
-            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex gap-3 text-red-400">
-               <AlertCircle className="w-5 h-5 flex-shrink-0" />
-               <p className="text-sm font-medium leading-relaxed">{error}</p>
-            </div>
-          )}
+          {error && <ErrorAlert message={error} />}
 
           <div className="pt-4 space-y-4">
              <button

@@ -9,13 +9,15 @@ import {
   CheckCircle2, 
   XCircle, 
   MessageSquare,
-  Loader2,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/admin/activity-logger";
 import { useUser } from "@/hooks/useUser";
 import { motion } from "framer-motion";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { EmptyState } from "@/components/shared/EmptyState";
 
 type VaultRequest = {
   id: string;
@@ -135,15 +137,9 @@ export default function VaultQueuePage() {
       {/* ── Requests List ──────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-6">
         {loading ? (
-          <div className="py-20 text-center text-[#9A9088]">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#F87171]" />
-            Consulting the records...
-          </div>
+          <LoadingSpinner message="Consulting the records..." color="text-[#F87171]" />
         ) : requests.length === 0 ? (
-          <div className="py-20 text-center rounded-2xl border border-[#2A2A2A] bg-[#141414] text-[#9A9088]">
-            <Lock className="w-12 h-12 opacity-10 mx-auto mb-4" />
-            No {filter} requests in the queue.
-          </div>
+          <EmptyState icon={Lock} message={`No ${filter} requests in the queue.`} />
         ) : (
           requests.map((req) => (
             <motion.div

@@ -12,16 +12,16 @@ import {
   Plus, 
   ShieldAlert, 
   ArrowLeft,
-  Tag,
   Info
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/types/database";
+import { useCategories } from "@/hooks/useCategories";
+import { ToggleSwitch } from "@/components/shared/ToggleSwitch";
+import { TagInput } from "@/components/shared/TagInput";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import Link from "next/link";
 import Image from "next/image";
-
-type Category = Database["public"]["Tables"]["categories"]["Row"];
 
 export default function UploadContent() {
   const router = useRouter();
@@ -36,7 +36,6 @@ export default function UploadContent() {
   const [curatorNote, setCuratorNote] = useState("");
   const [isRestricted, setIsRestricted] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
   
   // File State
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -44,24 +43,13 @@ export default function UploadContent() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   
   // UI State
-  const [categories, setCategories] = useState<Category[]>([]);
+  const categories = useCategories();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   
   const coverInputRef = useRef<HTMLInputElement>(null);
   const bookInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Fetch categories
-    supabase
-      .from("categories")
-      .select("*")
-      .order("sort_order")
-      .then(({ data }) => {
-        if (data) setCategories(data as Category[]);
-      });
-  }, [supabase]);
 
   // Auth Guard
   useEffect(() => {
@@ -70,11 +58,7 @@ export default function UploadContent() {
     }
   }, [authLoading, isAdmin, router]);
 
-  if (authLoading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D]">
-      <Loader2 className="w-8 h-8 animate-spin text-[#C9A84C]" />
-    </div>
-  );
+  if (authLoading) return <LoadingSpinner className="min-h-screen" />;
 
   if (!isAdmin) return null;
 
@@ -91,20 +75,6 @@ export default function UploadContent() {
   const handleBookFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setBookFile(file);
-  };
-
-  const addTag = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && tagInput.trim()) {
-      e.preventDefault();
-      if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()]);
-      }
-      setTagInput("");
-    }
-  };
-
-  const removeTag = (t: string) => {
-    setTags(tags.filter(tag => tag !== t));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -370,13 +340,7 @@ export default function UploadContent() {
                           </div>
                           <p className="text-xs text-[#9A9088]">Require curator approval for seekers to access this text.</p>
                         </div>
-                        <button 
-                          type="button"
-                          onClick={() => setIsRestricted(!isRestricted)}
-                          className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${isRestricted ? 'bg-[#C9A84C]' : 'bg-[#2A2A2A]'}`}
-                        >
-                          <div className={`w-4 h-4 rounded-full bg-[#0D0D0D] transition-transform duration-300 ${isRestricted ? 'translate-x-6' : 'translate-x-0'}`} />
-                        </button>
+                        <ToggleSwitch enabled={isRestricted} onChange={setIsRestricted} />
                       </div>
                     </div>
 
@@ -393,27 +357,10 @@ export default function UploadContent() {
 
                     <div className="space-y-3">
                       <label className="text-xs font-semibold uppercase tracking-widest text-[#9A9088]">Tags</label>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {tags.map(t => (
-                          <span 
-                            key={t} 
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] text-[10px] text-[#9A9088]"
-                          >
-                            <Tag className="w-2.5 h-2.5" />
-                            {t}
-                            <button onClick={() => removeTag(t)} className="hover:text-red-400">
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                      <input 
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyDown={addTag}
+                      <TagInput
+                        tags={tags}
+                        onChange={setTags}
                         placeholder="Press Enter to add tags..."
-                        className="w-full bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm text-[#F0EDE6] outline-none focus:border-[#C9A84C]/50 transition-colors"
                       />
                     </div>
                   </div>

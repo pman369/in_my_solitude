@@ -11,8 +11,6 @@ import {
   EyeOff, 
   Edit3, 
   Trash2,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
   Lock
 } from "lucide-react";
@@ -20,6 +18,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/admin/activity-logger";
 import { useUser } from "@/hooks/useUser";
+import { useCategories } from "@/hooks/useCategories";
+import { Pagination } from "@/components/shared/Pagination";
+import { AdminPageHeader } from "@/components/shared/AdminPageHeader";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 type Book = {
   id: string;
@@ -39,7 +41,7 @@ export default function BookManagementPage() {
   const supabase = createClient();
   const { user, isAdmin } = useUser();
   const [books, setBooks] = useState<Book[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const categories = useCategories();
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   
@@ -90,14 +92,6 @@ export default function BookManagementPage() {
   useEffect(() => {
     fetchBooks();
   }, [fetchBooks]);
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const { data } = await supabase.from("categories").select("id, name").order("name");
-      if (data) setCategories(data);
-    }
-    fetchCategories();
-  }, [supabase]);
 
   async function togglePublish(bookId: string, currentState: boolean | null) {
     if (!user) return;
@@ -163,18 +157,19 @@ export default function BookManagementPage() {
   return (
     <div className="space-y-8">
       {/* ── Header ────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[#2A2A2A] pb-8">
-        <div>
-          <h1 className="font-heading text-4xl text-[#F0EDE6]">Archive <span className="text-[#C9A84C]">Stacks</span></h1>
-          <p className="text-[#9A9088] text-sm mt-1 uppercase tracking-widest font-medium">Manage the collective knowledge of the library</p>
-        </div>
-        <Link 
-          href="/admin/books/new"
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#C9A84C] text-[#0D0D0D] font-bold text-sm uppercase tracking-widest hover:shadow-[0_0_30px_rgba(201,168,76,0.3)] transition-all"
-        >
-          <Plus className="w-4 h-4" /> New Archive Entry
-        </Link>
-      </div>
+      <AdminPageHeader
+        title="Archive"
+        highlight="Stacks"
+        subtitle="Manage the collective knowledge of the library"
+        actions={
+          <Link 
+            href="/admin/books/new"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#C9A84C] text-[#0D0D0D] font-bold text-sm uppercase tracking-widest hover:shadow-[0_0_30px_rgba(201,168,76,0.3)] transition-all"
+          >
+            <Plus className="w-4 h-4" /> New Archive Entry
+          </Link>
+        }
+      />
 
       {/* ── Filters ───────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row gap-4 items-center bg-[#141414] p-4 rounded-2xl border border-[#2A2A2A]">
@@ -244,9 +239,8 @@ export default function BookManagementPage() {
             <tbody className="divide-y divide-[#2A2A2A]">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-20 text-center text-[#9A9088]">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#C9A84C]" />
-                    Searching the shelves...
+                  <td colSpan={6}>
+                    <LoadingSpinner message="Searching the shelves..." />
                   </td>
                 </tr>
               ) : books.length === 0 ? (
@@ -347,28 +341,13 @@ export default function BookManagementPage() {
         </div>
 
         {/* ── Pagination ──────────────────────────────────── */}
-        <div className="px-6 py-4 bg-[#1A1A1A] border-t border-[#2A2A2A] flex items-center justify-between">
-          <p className="text-[10px] uppercase tracking-widest text-[#9A9088] font-bold">
-            Showing <span className="text-[#F0EDE6]">{books.length}</span> of <span className="text-[#F0EDE6]">{totalCount}</span> volumes
-          </p>
-          <div className="flex items-center gap-2">
-            <button 
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-              className="p-2 rounded-lg border border-[#2A2A2A] text-[#9A9088] disabled:opacity-20 hover:text-[#C9A84C] transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="text-[10px] font-bold text-[#C9A84C] px-2">{page}</span>
-            <button 
-              disabled={page * pageSize >= totalCount}
-              onClick={() => setPage(page + 1)}
-              className="p-2 rounded-lg border border-[#2A2A2A] text-[#9A9088] disabled:opacity-20 hover:text-[#C9A84C] transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          onPageChange={setPage}
+          label={<>Showing <span className="text-[#F0EDE6]">{books.length}</span> of <span className="text-[#F0EDE6]">{totalCount}</span> volumes</>}
+        />
       </div>
     </div>
   );
