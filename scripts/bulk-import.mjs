@@ -457,7 +457,7 @@ async function main() {
         const coverBytes = await readFileBytes(book.coverPath);
 
         const { error: coverErr } = await supabase.storage
-          .from("book-covers")
+          .from("public")
           .upload(coverKey, coverBytes, {
             contentType: `image/${coverExt === "jpg" ? "jpeg" : coverExt}`,
             upsert: true,
@@ -466,13 +466,13 @@ async function main() {
         if (coverErr) throw new Error(`Cover upload: ${coverErr.message}`);
 
         coverUrl = supabase.storage
-          .from("book-covers")
+          .from("public")
           .getPublicUrl(coverKey).data.publicUrl;
       }
 
       // ── Step 3: Upload PDF ─────────────────────────────────────────────────
-      const pdfBucket = book.is_restricted ? "vault-files" : "book-files";
-      const pdfKey    = `${bookId}.pdf`;
+      const pdfBucket = "public";
+      const pdfKey    = `files/${bookId}.pdf`;
       const pdfBytes  = await readFileBytes(book.pdfPath);
 
       const { error: pdfErr } = await supabase.storage

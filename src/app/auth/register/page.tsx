@@ -135,7 +135,13 @@ export default function RegisterPage() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                onSubmit={(e) => { e.preventDefault(); if (!displayName || !email || !password) return; setStep(2); }}
+                onSubmit={(e) => {
+  e.preventDefault();
+  if (!displayName || !email || !password) return;
+  const pwdPattern = /^(?=.*\d)(?=.*[!@#$%^&*])/;
+  if (!pwdPattern.test(password)) { setError("Password must contain at least one digit and one special character."); return; }
+  setStep(2);
+}}
                 className="p-8 space-y-5"
                 aria-label="Account details"
                 noValidate

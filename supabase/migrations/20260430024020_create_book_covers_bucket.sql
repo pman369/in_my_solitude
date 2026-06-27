@@ -11,6 +11,10 @@ ON storage.objects FOR SELECT
 USING (bucket_id = 'book-covers');
 
 -- 2. Allow admins to upload/update/delete files in the book-covers bucket
+-- Ensure admin policy does not already exist
+DROP POLICY IF EXISTS "Admin Full Access" ON storage.objects;
+
+-- 2. Allow admins to upload/update/delete files in the book-covers bucket
 CREATE POLICY "Admin Full Access"
 ON storage.objects FOR ALL
 TO authenticated
