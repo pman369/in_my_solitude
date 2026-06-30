@@ -36,6 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 /.documents/
+/.agent/
 .vercel
 .env*.local
 
@@ -46,6 +47,7 @@ scripts/pdfs/
 scripts/*.csv
 scripts/pdf/
 scripts/VAULT-BOOKS/
+InMySolitude_Auth_Storage_Plan.md
 InMySolitude_Manifesto.md
 !scripts/sample-books.csv
 InMySolitude_BookCover_DesignSystem.md

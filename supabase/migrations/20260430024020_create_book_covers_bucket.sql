@@ -8,7 +8,10 @@ ON CONFLICT (id) DO NOTHING;
 -- 1. Allow public read access to all files in the book-covers bucket
 CREATE POLICY "Public Access"
 ON storage.objects FOR SELECT
-USING (bucket_id = 'book-covers');
+USING (
+  bucket_id = 'book-covers'
+  AND name IS NOT NULL
+);
 
 -- 2. Allow admins to upload/update/delete files in the book-covers bucket
 -- Ensure admin policy does not already exist

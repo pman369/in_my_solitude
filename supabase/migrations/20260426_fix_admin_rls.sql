@@ -5,7 +5,9 @@
 -- ── 1. Helper Function for Admin Check ──────────────────────────
 -- Uses SECURITY DEFINER to bypass RLS during the check itself.
 CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS boolean AS $$
+RETURNS boolean 
+SET search_path = public
+AS $$
 BEGIN
   RETURN EXISTS (
     SELECT 1 FROM public.user_profiles
