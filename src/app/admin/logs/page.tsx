@@ -5,18 +5,17 @@ import {
   Clock, 
   User, 
   Hash, 
-  Loader2, 
   Filter, 
   RotateCcw,
   ShieldCheck,
   BookOpen,
   Lock,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight
+  AlertTriangle
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { Pagination } from "@/components/shared/Pagination";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 interface LogEntry {
   id: string;
@@ -85,7 +84,7 @@ export default function AdminLedgerPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[#2A2A2A] pb-8">
         <div>
-          <h2 className="font-heading text-4xl text-[#F0EDE6]">The Eternal <span className="text-[#C9A84C]">Ledger</span></h2>
+          <h1 className="font-heading text-4xl text-[#F0EDE6]">The Eternal <span className="text-[#C9A84C]">Ledger</span></h1>
           <p className="text-[#9A9088] text-sm mt-1 uppercase tracking-widest font-medium">Audit trail of all administrative actions in the library</p>
         </div>
         <div className="flex items-center gap-3">
@@ -113,10 +112,7 @@ export default function AdminLedgerPage() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-[#9A9088]">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#C9A84C]" />
-          Unrolling the scrolls...
-        </div>
+        <LoadingSpinner message="Unrolling the scrolls..." />
       ) : logs.length === 0 ? (
         <div className="py-20 text-center rounded-2xl border border-[#2A2A2A] bg-[#141414] text-[#9A9088]">
           The ledger is empty. No actions have been recorded yet.
@@ -185,28 +181,13 @@ export default function AdminLedgerPage() {
           </div>
 
           {/* Pagination */}
-          <div className="px-6 py-4 bg-[#1A1A1A] border-t border-[#2A2A2A] flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-widest text-[#9A9088] font-bold">
-              Entries: <span className="text-[#F0EDE6]">{totalCount}</span>
-            </p>
-            <div className="flex items-center gap-2">
-              <button 
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
-                className="p-2 rounded-lg border border-[#2A2A2A] text-[#9A9088] disabled:opacity-20 hover:text-[#C9A84C] transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-[10px] font-bold text-[#C9A84C] px-2">{page}</span>
-              <button 
-                disabled={page * pageSize >= totalCount}
-                onClick={() => setPage(page + 1)}
-                className="p-2 rounded-lg border border-[#2A2A2A] text-[#9A9088] disabled:opacity-20 hover:text-[#C9A84C] transition-colors"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            label={<>Entries: <span className="text-[#F0EDE6]">{totalCount}</span></>}
+          />
         </div>
       )}
     </div>

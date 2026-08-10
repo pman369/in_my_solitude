@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Mail, Lock, User, ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
 
 const READING_INTERESTS = [
   "Consciousness & Mind",
@@ -291,15 +292,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {error && (
-                  <div
-                    className="px-4 py-3 rounded text-sm"
-                    style={{ background: "rgba(153,27,27,0.1)", border: "1px solid rgba(153,27,27,0.3)", color: "#F87171" }}
-                    role="alert"
-                  >
-                    {error}
-                  </div>
-                )}
+                {error && <ErrorAlert message={error} variant="inline" />}
 
                 <div className="flex gap-3 pt-2">
                   <button

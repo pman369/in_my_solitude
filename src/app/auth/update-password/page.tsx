@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Moon, Lock, ArrowRight, Loader2, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
 
 export default function UpdatePasswordPage() {
   const router = useRouter();
@@ -116,13 +117,7 @@ export default function UpdatePasswordPage() {
                 </div>
               </div>
 
-              {error && (
-                <div className="px-4 py-3 rounded text-sm"
-                  style={{ background: "rgba(153,27,27,0.1)", border: "1px solid rgba(153,27,27,0.3)", color: "#F87171" }}
-                  role="alert">
-                  {error}
-                </div>
-              )}
+              {error && <ErrorAlert message={error} variant="inline" />}
 
               <button
                 type="submit"
