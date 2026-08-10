@@ -1,20 +1,28 @@
-import { describe, it, expect, vi } from 'vitest';
-import { logActivity } from '../lib/admin/activity-logger';
-import { createClient } from '../lib/supabase/client';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock Supabase client
+const mockGetUser = vi.fn();
+const mockInsert = vi.fn();
+const mockFrom = vi.fn();
+
 vi.mock('../lib/supabase/client', () => ({
   createClient: vi.fn(() => ({
     auth: {
-      getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'test-user-id' } } })),
+      getUser: mockGetUser,
     },
-    from: vi.fn(() => ({
-      insert: vi.fn(() => Promise.resolve({ error: null })),
-    })),
+    from: mockFrom,
   })),
 }));
 
+import { logActivity } from '../lib/admin/activity-logger';
+
 describe('Admin Activity Logger', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'test-user-id' } } });
+    mockInsert.mockResolvedValue({ error: null });
+    mockFrom.mockReturnValue({ insert: mockInsert });
+  });
+
   it('should call supabase insert with correct activity parameters', async () => {
     const activityParams = {
       action: 'book_publish' as const,
@@ -25,19 +33,37 @@ describe('Admin Activity Logger', () => {
 
     await logActivity(activityParams);
 
-    const supabase = createClient();
-    expect(supabase.auth.getUser).toHaveBeenCalled();
-    expect(supabase.from).toHaveBeenCalledWith('activity_logs');
+    expect(mockGetUser).toHaveBeenCalled();
+    expect(mockFrom).toHaveBeenCalledWith('activity_logs');
+    expect(mockInsert).toHaveBeenCalledWith({
+      user_id: 'test-user-id',
+      action: 'book_publish',
+      target_id: 'book-123',
+      target_type: 'book',
+      details: { title: 'The Great Grimoire' },
+    });
   });
 
   it('should handle missing user gracefully', async () => {
-    const supabase = createClient();
-    // @ts-expect-error - Mocking getUser response for testing
-    supabase.auth.getUser.mockResolvedValueOnce({ data: { user: null } });
+    mockGetUser.mockResolvedValueOnce({ data: { user: null } });
 
     await logActivity({ action: 'book_delete', targetId: '123' });
     
-    // Should return early without calling .from()
-    expect(supabase.from).not.toHaveBeenCalledWith('activity_logs');
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  it('should handle errors from supabase without throwing', async () => {
+    mockGetUser.mockRejectedValueOnce(new Error('Network error'));
+
+    // Should not throw
+    await expect(logActivity({ action: 'book_edit', targetId: '456' })).resolves.toBeUndefined();
+  });
+
+  it('should use empty object for details when not provided', async () => {
+    await logActivity({ action: 'vault_approve', targetId: 'req-1' });
+
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ details: {} })
+    );
   });
 });
