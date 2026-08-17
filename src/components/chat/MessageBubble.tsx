@@ -53,19 +53,28 @@ export function MessageBubble({ message }: Props) {
   );
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /** Minimal markdown renderer: bold, italic, newlines → paragraphs */
 function formatMessage(content: string) {
   if (!content) return null;
   return content.split("\n").map((line, i) => {
     if (!line.trim()) return <br key={i} />;
+    const safe = escapeHtml(line);
     return (
       <p
         key={i}
         dangerouslySetInnerHTML={{
-          __html: line
+          __html: safe
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\*(.*?)\*/g, "<em>$1</em>")
-            // Inline code
             .replace(/`(.*?)`/g, "<code>$1</code>"),
         }}
       />

@@ -8,9 +8,7 @@ async function fixStoragePolicy() {
     database: 'postgres',
     user: 'postgres.icwapvsvltnwgypstgkw',
     password: process.env.SOLITUDE_DB_POSTGRES_PASSWORD,
-    ssl: {
-      rejectUnauthorized: false
-    }
+    ssl: true,
   });
 
   try {

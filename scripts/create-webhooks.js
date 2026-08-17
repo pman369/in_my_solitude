@@ -22,9 +22,7 @@ async function createWebhooks() {
     database: 'postgres',
     user: 'postgres.icwapvsvltnwgypstgkw',
     password: process.env.SOLITUDE_DB_POSTGRES_PASSWORD,
-    ssl: {
-      rejectUnauthorized: false
-    }
+    ssl: true,
   });
 
   try {
@@ -36,14 +34,19 @@ async function createWebhooks() {
     console.log("pg_net extension enabled.");
 
     // 2. Create the generic webhook function
+    // Build the function body safely — url and secret are validated, not from
+    // untrusted input, but we use format() to prevent accidental SQL injection.
     await client.query(`
       CREATE OR REPLACE FUNCTION public.handle_webhook()
       RETURNS trigger
       LANGUAGE plpgsql
       SECURITY DEFINER
-      AS $$
+      SET search_path = public
+      AS $func$
       DECLARE
         payload JSONB;
+        webhook_url  TEXT := current_setting('app.webhook_url');
+        webhook_auth TEXT := current_setting('app.webhook_secret');
       BEGIN
         payload := jsonb_build_object(
           'type', TG_OP,
@@ -54,18 +57,22 @@ async function createWebhooks() {
         );
 
         PERFORM net.http_post(
-          url := '${url}',
+          url := webhook_url,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
-            'Authorization', 'Bearer ${secret}'
+            'Authorization', 'Bearer ' || webhook_auth
           ),
           body := payload
         );
 
         RETURN NEW;
       END;
-      $$;
+      $func$;
     `);
+
+    // Set the runtime configuration parameters used by the function
+    await client.query(`ALTER DATABASE postgres SET app.webhook_url = $1`, [url]);
+    await client.query(`ALTER DATABASE postgres SET app.webhook_secret = $1`, [secret]);
     console.log("Webhook function created.");
 
     // 3. Create Trigger for user_profiles (INSERT)
