@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
   const file     = searchParams.get("file");
   const download = searchParams.get("download") === "1";
 
-  if (!file) {
-    return NextResponse.json({ error: "Missing file parameter" }, { status: 400 });
+  if (!file || file.includes("..")) {
+    return NextResponse.json({ error: "Invalid file parameter" }, { status: 400 });
   }
 
   const supabase = await createClient();

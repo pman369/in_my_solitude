@@ -17,11 +17,16 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const file = searchParams.get("file");
 
-  if (!file) {
-    return NextResponse.json({ error: "Missing file parameter" }, { status: 400 });
+  if (!file || file.includes("..")) {
+    return NextResponse.json({ error: "Invalid file parameter" }, { status: 400 });
   }
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
 
   const parts  = file.split("/");
   const bucket = parts[0];
@@ -33,10 +38,6 @@ export async function GET(request: NextRequest) {
 
   // Vault files require approved access
   if (resolvedBucket === "vault-files") {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db = supabase as any;
     const { data: book } = await db

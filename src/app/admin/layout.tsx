@@ -99,14 +99,6 @@ export default function AdminLayout({
              <button onClick={() => router.push('/auth/login')} className="px-6 py-2.5 rounded bg-[#C9A84C] text-[#0D0D0D] text-sm font-bold hover:bg-[#D4B96A] transition-colors">
                Switch Account
              </button>
-             <div className="mt-6 pt-6 border-t border-[#2A2A2A] text-[10px] text-left text-[#555] font-mono whitespace-pre">
-               DEBUG INFO:
-               ID:    {user?.id || 'none'}
-               Role:  {profile?.role || 'none'}
-               Email: {user?.email || 'none'}
-               Registry: {profile ? 'user_profiles' : 'none'}
-               AdminTable: {isAdminProfile ? 'verified' : 'not found'}
-             </div>
           </div>
         </div>
       </div>

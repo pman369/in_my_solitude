@@ -15,11 +15,16 @@ export async function POST(req: Request) {
   );
 
   try {
-    // Basic webhook secret verification
+    // Webhook secret verification — reject if secret is missing or mismatched
     const authHeader = req.headers.get('Authorization');
     const webhookSecret = process.env.SUPABASE_WEBHOOK_SECRET;
 
-    if (webhookSecret && authHeader !== `Bearer ${webhookSecret}`) {
+    if (!webhookSecret) {
+      console.error('SUPABASE_WEBHOOK_SECRET is not configured');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
+
+    if (authHeader !== `Bearer ${webhookSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
